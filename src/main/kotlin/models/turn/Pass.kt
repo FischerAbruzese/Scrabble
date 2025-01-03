@@ -1,5 +1,3 @@
 package models.turn
 
-class Pass : Turn{
-
-}
+class Pass : Turn

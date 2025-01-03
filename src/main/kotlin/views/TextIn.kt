@@ -1,4 +1,4 @@
 package views
 
-class TextIn {
+class TextIn : ViewInput {
 }

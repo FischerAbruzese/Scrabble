@@ -1,4 +1,3 @@
 package models.turn
 
-interface Turn {
-}
+interface Turn

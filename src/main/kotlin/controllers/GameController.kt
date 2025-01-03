@@ -22,98 +22,117 @@ class GameController(val game: GameState, val viewInput: ViewInput, val viewOutp
     }
 
     fun scoreMove(board: Board, move: Move): Int {
-        val currentWord = LinkedList<Piece>()
-        var wordMultiplier = 1
-        var wordScore = 0
+        val placedWord = LinkedList<Piece>()
+        var placedWordMultiplier = 1
+        var placedWordScore = 0
 
         var totalScore = 0
 
+        //counting each square
         val piecesToCount = move.pieces.toMutableList()
         val placeAt = LinkedList<Coord>()
-        for ((coord, square) in traverseMoveWithCoords(move, board, true)) {
-
-            if (square.hasPiece()) {
-                currentWord.add(square.piece!!)
-                totalScore += square.piece!!.value
+        for ((currSqCoord, currSq) in traverseMoveWithCoords(move, board, true)) {
+            if (currSq.hasPiece()) {
+                placedWord.add(currSq.piece!!)
+                totalScore += currSq.piece!!.value
             } else {
                 val pieceToPlace = piecesToCount.removeFirst()
-                currentWord.add(pieceToPlace)
-                placeAt.addLast(coord)
+                placedWord.add(pieceToPlace)
+                placeAt.addLast(currSqCoord)
 
                 //check for a perpendicular word
-                val beginningOfPerpendicularWord = findBeginningOfWord(
-                    coord,
-                    if (move.direction == Direction.ACROSS) Direction.DOWN else Direction.ACROSS,
-                    board
-                )
-
-                var perpWord = readWord(
-                    beginningOfPerpendicularWord,
+                val perpWord = wordContainingCoord(
+                    currSqCoord,
+                    Direction.perpendicularTo(move.direction),
                     board,
-                    if (move.direction == Direction.ACROSS) Direction.DOWN else Direction.ACROSS,
-                    addFakePieceAt = coord,
-                    addFakePiece = pieceToPlace
+                    pieceToPlace
                 )
-
-                if (perpWord.size != 1 &&
-                    !isValidScrabbleWord(perpWord.map { it.letter }.joinToString(""))
-                ) {
-                    throw InvalidWordException(perpWord.map { it.letter }.joinToString(""))
-                }
-
-                if (perpWord.size == 1) perpWord = LinkedList<Piece>()
 
                 //score perpendicular word
                 var perpWordScore = perpWord.sumOf { it.value }
-                when (square.multiplier) {
+                when (currSq.multiplier) {
                     Multiplier.DOUBLE_LETTER -> {
                         perpWordScore += pieceToPlace.value //since we already added one in sumOf
-                        wordScore += pieceToPlace.value * 2
+                        placedWordScore += pieceToPlace.value * 2
                     }
 
                     Multiplier.TRIPLE_LETTER -> {
                         perpWordScore += pieceToPlace.value * 2
-                        wordScore += pieceToPlace.value * 3
+                        placedWordScore += pieceToPlace.value * 3
                     }
 
                     Multiplier.DOUBLE_WORD -> {
                         perpWordScore *= 2
-                        wordMultiplier *= 2
-                        wordScore += pieceToPlace.value
+                        placedWordMultiplier *= 2
+                        placedWordScore += pieceToPlace.value
                     }
 
                     Multiplier.TRIPLE_WORD -> {
                         perpWordScore *= 3
-                        wordMultiplier *= 3
-                        wordScore += pieceToPlace.value
+                        placedWordMultiplier *= 3
+                        placedWordScore += pieceToPlace.value
                     }
 
-                    else -> wordScore += pieceToPlace.value
+                    else -> placedWordScore += pieceToPlace.value
                 }
                 totalScore += perpWordScore
             }
         }
 
-        if (!isValidScrabbleWord(currentWord.map { it.letter }.joinToString("")))
-            throw InvalidWordException(currentWord.map { it.letter }.joinToString(""))
+        //validate placed word
+        if (!isValidScrabbleWord(placedWord.map { it.letter }.joinToString("")))
+            throw InvalidWordException(placedWord.map { it.letter }.joinToString(""))
 
-        wordScore *= wordMultiplier
-        totalScore += wordScore
+        placedWordScore *= placedWordMultiplier
+        totalScore += placedWordScore
 
+        //place the pieces
         val piecesToPlace = move.pieces.toMutableList()
         for (coord in placeAt) {
             val sq = board[coord]
             board[coord] = Square(sq.multiplier, piecesToPlace.removeFirst(), game.turnNum, game.currentPlayer())
         }
+
+        //update scores
         game.currentPlayer().score += totalScore
+
         return totalScore
     }
 
-    fun isValidScrabbleWord(word: String): Boolean {
+    private fun isValidScrabbleWord(word: String): Boolean {
         return true //todo
     }
 
     //PRIVATE HELPER METHODS//
+    private fun wordContainingCoord(
+        coord: Coord,
+        direction: Direction,
+        board: Board,
+        pieceToPlace: Piece? = null
+    ): List<Piece> {
+        val beginningOfPerpendicularWord = findBeginningOfWord(
+            coord,
+            direction,
+            board
+        )
+
+        var perpWord = readWord(
+            beginningOfPerpendicularWord,
+            board,
+            direction,
+            addFakePieceAt = if (pieceToPlace == null) null else coord,
+            addFakePiece = pieceToPlace
+        )
+
+        if (perpWord.size != 1 &&
+            !isValidScrabbleWord(perpWord.map { it.letter }.joinToString(""))
+        ) {
+            throw InvalidWordException(perpWord.map { it.letter }.joinToString(""))
+        }
+
+        if (perpWord.size == 1) perpWord = LinkedList<Piece>()
+        return perpWord
+    }
 
     private fun findBeginningOfWord(coord: Coord, direction: Direction, board: Board): Coord {
         var currCord = coord

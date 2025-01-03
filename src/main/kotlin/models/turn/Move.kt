@@ -1,4 +1,11 @@
 package models.turn
 
-class Move : Turn{
-}
+import models.board.Coord
+import models.tiles.Piece
+
+
+class Move(
+    val start: Coord,
+    val direction: Direction,
+    val pieces: List<Piece>
+) : Turn

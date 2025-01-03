@@ -1,4 +1,3 @@
 package models.board
 
-class Coord {
-}
+data class Coord(val x: Int, val y: Int)

@@ -1,0 +1,4 @@
+package views
+
+interface ViewInput {
+}

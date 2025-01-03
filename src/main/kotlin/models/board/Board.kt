@@ -8,9 +8,9 @@ class Board(val board: Array<Array<Square>>) {
         return board.isNotEmpty() && board.size == board[0].size
     }
 
-    fun get(coord: Coord) = board[coord.x][coord.y]
+    operator fun get(coord: Coord) = board[coord.x][coord.y]
 
-    fun set(coord: Coord, square: Square) {
+    operator fun set(coord: Coord, square: Square) {
         board[coord.x][coord.y] = square
     }
 

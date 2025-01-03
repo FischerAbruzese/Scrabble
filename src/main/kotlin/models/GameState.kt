@@ -28,7 +28,7 @@ class GameState(
      * @return true if the turn ends the game, false otherwise
      */
     fun makeTurn(turn: Turn): Boolean {
-        val nextPlayer = nextPlayer()
+        val nextPlayer = currentPlayer()
         when (turn) {
             is Move -> {
                 if (!isValidMove(turn)) throw InvalidMoveException()
@@ -57,7 +57,7 @@ class GameState(
     /**
      * The player whose turn it is to move
      */
-    fun nextPlayer() = players[turnNum % players.size]
+    fun currentPlayer() = players[turnNum % players.size]
 
 
     /**

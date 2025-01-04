@@ -21,10 +21,10 @@ class Board(val board: Array<Array<Square>>) {
         return board.isNotEmpty() && board.size == board[0].size
     }
 
-    operator fun get(coord: Coord) = board[coord.x][coord.y]
+    operator fun get(coord: Coord) = board[coord.y][coord.x]
 
     operator fun set(coord: Coord, square: Square) {
-        board[coord.x][coord.y] = square
+        board[coord.y][coord.x] = square
     }
 
     fun isValidCoordinate(coord: Coord): Boolean {

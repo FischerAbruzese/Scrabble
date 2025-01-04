@@ -5,7 +5,7 @@ import models.GameState
 
 class TextOut : ViewOutput {
     fun push(gameState: GameState) {
-        println("\n".repeat(30))
+        println("\n".repeat(2))
         println(generateGameInfo(gameState))
         println(generateBoardFrame(gameState))
         generatePlayerInfo(gameState).forEach { print(it) }

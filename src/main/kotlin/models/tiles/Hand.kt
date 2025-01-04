@@ -85,21 +85,28 @@ class Hand(piecesInit: List<Piece>) {
      * Exchanges a list of pieces from the bag
      *
      * Requires all of [piecesToExchange] to be in the bag
+     *
+     * @return List of pieces that were pulled
      */
     @Throws(NotEnoughPiecesException::class)
-    fun exchangePieces(bag: Bag, piecesToExchange: List<Piece>){
+    fun exchangePieces(bag: Bag, piecesToExchange: List<Piece>): List<Piece>{
         val pulled = bag.exchange(piecesToExchange)
         pieces.removeAll(piecesToExchange)
         pieces.addAll(pulled)
+        return pulled
     }
 
     /**
      * Replaces a list of pieces with pieces from the bag
      *
      * Requires all of [piecesToUse] to be in the hand
+     *
+     * @return List of pieces that were pulled
      */
-    fun usePieces(bag: Bag, piecesToUse: List<Piece>){
+    fun usePieces(bag: Bag, piecesToUse: List<Piece>): List<Piece> {
         pieces.removeAll(piecesToUse)
-        pieces.addAll(bag.draw(piecesToUse.size))
+        val pulled = bag.draw(piecesToUse.size)
+        pieces.addAll(pulled)
+        return pulled
     }
 }

@@ -23,16 +23,36 @@ class TextOut : ViewOutput {
         val screenLength = 100
         screen.appendLn("-".repeat(screenLength))
         screen.appendLn(centerString("SCRABBLE", screenLength))
-        screen.appendLn(centerString("*" + " - ".repeat(gameState.board.size()) + "*", screenLength))
-        for (row in gameState.board.board) {
+
+
+        // Column Numbers
+        val columnWidth = 3 // " - " is 3 characters wide
+        val columnNumbers = (0 until gameState.board.size()).joinToString("") {
+            it.toString().padEnd((columnWidth + 1) / 2).padStart(columnWidth)
+        }
+        screen.appendLn(centerString("$columnNumbers", screenLength))
+
+        // Top board
+        screen.appendLn(centerString("*" + "---".repeat(gameState.board.size()) + "*", screenLength))
+
+        //Board
+        for ((index, row) in gameState.board.board.withIndex()) {
             screen.appendLn(
-                centerString(
-                    "|" + row.map { " " + (it.piece?.letter ?: "·") + " " }.joinToString("") + "|",
+                centerString("" +
+                    index + " |" +
+                        row.map { " " + (it.piece?.letter ?: "·") + " " }.joinToString("") +
+                    "| " + index,
                     screenLength
                 )
             )
         }
-        screen.appendLn(centerString("*" + " - ".repeat(gameState.board.size()) + "*", screenLength))
+
+        //Bottom board
+        screen.appendLn(centerString("*" + "---".repeat(gameState.board.size()) + "*", screenLength))
+
+        //Bottom numbers
+        screen.appendLn(centerString("$columnNumbers", screenLength))
+
         return screen.toString()
     }
 

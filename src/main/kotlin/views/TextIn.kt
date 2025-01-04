@@ -81,6 +81,37 @@ class TextIn : ViewInput, PlayerController {
                 } else tiles = piecesToRemove
             }
 
+            //Blank pieces
+            var blankPieces = tiles.filter{it.letter == '_'}
+            while(blankPieces.isNotEmpty()){
+                println("You have ${blankPieces.size} blank pieces. What letters do you want to fill them in with? Order matters. (format ex for 2 blank pieces: AB")
+                var input = readLine()
+                input = input?.trim()?.uppercase()
+
+                //Input error check
+                if (input == null) {
+                    println("Invalid input: $input")
+                    continue
+                }
+
+                //Length error check
+                if (input.length != blankPieces.size){
+                    println("You entered ${input.length} letters but have ${blankPieces.size} blank pieces to fill.")
+                    continue
+                }
+
+                //Valid letter check
+                if(input.any{it !in 'A'..'Z'}){
+                    println("All letters must be alphabetical.")
+                    continue
+                }
+
+                for((index, tile) in blankPieces.withIndex()){
+                    tile.letter = input[index]
+                }
+                blankPieces = listOf()
+            }
+
             //Coordinates
             var coord: Coord? = null
             while (coord == null) {

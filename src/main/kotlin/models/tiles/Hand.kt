@@ -7,6 +7,8 @@ class Hand(piecesInit: List<Piece>) {
 
     fun size() = pieces.size
 
+    fun addAll(piecesToAdd: List<Piece>) = pieces.addAll(piecesToAdd)
+
     /**
      * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
      */

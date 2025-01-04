@@ -3,7 +3,7 @@ package models.tiles
 import exceptions.NotEnoughPiecesException
 
 class Bag(pieces: List<Piece>) {
-    private val pieces: MutableList<Piece> = pieces.shuffled().toMutableList()
+    val pieces: MutableList<Piece> = pieces.shuffled().toMutableList()
 
     fun isEmpty(): Boolean {
         return size() == 0

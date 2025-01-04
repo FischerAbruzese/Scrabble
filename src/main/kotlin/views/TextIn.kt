@@ -2,6 +2,7 @@ package views
 
 
 import controllers.players.PlayerController
+import exceptions.BoardPieceNotUsedException
 import exceptions.IllegalMoveException
 import models.turn.Direction
 import models.GameState
@@ -156,6 +157,12 @@ class TextIn : ViewInput, PlayerController {
                     throw IllegalMoveException("First move must contain the center square $center,$center")
 
                 return Move(coord, direction, tiles)
+            } catch (e: BoardPieceNotUsedException){
+                if(gameState.turnNum == 0){
+                    val center = (gameState.board.size())/2
+                    println("First move must contain the center square $center,$center")
+                } else
+                    println(e.message)
             } catch (e: IllegalMoveException){
                 println(e.message)
             }

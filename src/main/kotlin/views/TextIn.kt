@@ -116,7 +116,9 @@ class TextIn : ViewInput, PlayerController {
 
             try {
                 val move = Move(coord, direction, tiles)
-                gameState.board.findMove(move)
+                gameState.board.findMove(move) //check if move is valid
+                player.hand.addAll(gameState.bag.draw(tiles.size)) //draw from bag
+
                 return Move(coord, direction, tiles)
             } catch (e: Exception){
                 println(e.message)

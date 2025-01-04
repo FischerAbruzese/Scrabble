@@ -1,4 +1,4 @@
-package views
+package views.web
 
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import models.GameState
+import views.ViewOutput
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration

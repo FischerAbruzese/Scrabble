@@ -14,7 +14,7 @@ import views.TextIn
 import views.TextOut
 
 class GameController {
-    private lateinit var game: GameState
+    private var game: GameState
     private var out: TextOut = TextOut()
 
     constructor(gameState: GameState) {
@@ -62,7 +62,7 @@ class GameController {
         when (turn) {
             is Move -> {
                 game.passStreak = 0
-                game.currentPlayer().run{
+                game.currentPlayer().run {
                     score += playMove(turn)
                     hand.usePieces(game.bag, turn.pieces)
                 }

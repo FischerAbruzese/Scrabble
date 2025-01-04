@@ -13,6 +13,9 @@ import models.tiles.Bag
 import models.tiles.Hand
 import models.tiles.Piece
 
+//game.serialized().toJson()
+//deserializeGameState(jsonString) -> gameState
+
 // Serialization data classes for all nested types
 @Serializable
 data class SerializedGameState(

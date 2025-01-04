@@ -110,6 +110,7 @@ class Board(val board: Array<Array<Square>>) {
     fun findMove(move: Move): Pair<List<Coord>, Int> {
         val boardClone = Board(board.map { it.clone() }.toTypedArray())
         boardClone.run {
+            var move = move
             val placedSquares = LinkedList<Coord>()
 
             var currentLocation = move.start
@@ -119,6 +120,30 @@ class Board(val board: Array<Array<Square>>) {
 
             var placedWordScore = 0
             var placedWordMultiplier = 1
+
+            if (move.pieces.size == 1) {
+                //if there's a tile to the left, our word is across
+                if (get(Coord(currentLocation.x - 1, currentLocation.y)).hasPiece()) {
+                    move = Move(move.start, Direction.ACROSS, move.pieces)
+                }
+                //if there's a tile above, our word is down
+                if (get(Coord(currentLocation.x, currentLocation.y - 1)).hasPiece()) {
+                    move = Move(move.start, Direction.DOWN, move.pieces)
+                }
+            }
+
+            val prefixEnd = Coord(
+                if (move.direction == Direction.ACROSS) currentLocation.x - 1 else currentLocation.x,
+                if (move.direction == Direction.DOWN) currentLocation.y - 1 else currentLocation.y
+            )
+            if (get(prefixEnd).hasPiece()) {
+                //go to beginning of prefix
+                currentLocation = findBeginningOfWord(
+                    prefixEnd,
+                    move.direction
+                )
+            }
+
 
             //place all the tiles
             var usesBoardPiece = false
@@ -166,7 +191,8 @@ class Board(val board: Array<Array<Square>>) {
                     Direction.NONE -> currentLocation
                 }
             }
-            if (!usesBoardPiece && !placedSquares.contains(center())) throw BoardPieceNotUsedException("Move must use a board piece")
+            if (!usesBoardPiece && !placedSquares.contains(center()))
+                throw BoardPieceNotUsedException("Move must use a board piece")
 
             var totalScore = placedWordScore * placedWordMultiplier
 

@@ -3,9 +3,9 @@ package models.board
 import models.Player
 import models.tiles.Piece
 
-class Square(
+data class Square(
     val multiplier: Multiplier,
-    var piece: Piece? = null,
+    val piece: Piece? = null,
     val turnPlaced: Int? = null,
     val playerPlaced: Player? = null
 ) {

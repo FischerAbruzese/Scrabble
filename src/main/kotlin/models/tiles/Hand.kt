@@ -1,6 +1,8 @@
 package models.tiles
 
-class Hand(var pieces: MutableList<Piece>) {
+class Hand(piecesInit: List<Piece>) {
+    var pieces = piecesInit.toMutableList()
+
     fun classInv(): Boolean = pieces.size in 0..7
 
     fun size() = pieces.size
@@ -8,8 +10,8 @@ class Hand(var pieces: MutableList<Piece>) {
     /**
      * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
      */
-    fun removePieces(piecesToRemove: List<Piece>): List<Piece>?{
-        if(!containsPieces(piecesToRemove)) return null
+    fun removePieces(piecesToRemove: List<Piece>): List<Piece>? {
+        if (!containsPieces(piecesToRemove)) return null
         pieces.removeAll(piecesToRemove)
         return piecesToRemove
     }
@@ -22,9 +24,9 @@ class Hand(var pieces: MutableList<Piece>) {
     /**
      * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
      */
-    fun removePieces(piecesToRemove: List<Char>): List<Piece>?{
+    fun removePieces(piecesToRemove: List<Char>): List<Piece>? {
         val matchChars = matchChars(piecesToRemove)
-        if(matchChars == null) return null
+        if (matchChars == null) return null
         pieces = matchChars.second.toMutableList()
         return matchChars.first
     }
@@ -32,7 +34,7 @@ class Hand(var pieces: MutableList<Piece>) {
     /**
      * Checks if every element of a list of pieces is in the hand
      */
-    fun containsPieces(piecesToCheck: List<Char>): Boolean{
+    fun containsPieces(piecesToCheck: List<Char>): Boolean {
         return matchChars(piecesToCheck) != null
     }
 
@@ -41,12 +43,12 @@ class Hand(var pieces: MutableList<Piece>) {
      *
      * @return Pair of matched pieces and the remainder pieces
      */
-    fun matchChars(piecesToMatch: List<Char>): Pair<List<Piece>, List<Piece>>?{
+    fun matchChars(piecesToMatch: List<Char>): Pair<List<Piece>, List<Piece>>? {
         val matched = ArrayList<Piece>()
         val piecesCopy = pieces.toMutableList()
-        for(m in piecesToMatch){
-            for(p in piecesCopy){
-                if(p.letter == m){
+        for (m in piecesToMatch) {
+            for (p in piecesCopy) {
+                if (p.letter == m) {
                     matched.add(p)
                     piecesCopy.remove(p)
                     break

@@ -1,9 +1,12 @@
 package models.board
 
 import controllers.util.isValidScrabbleWord
+import controllers.util.perpendicular
+import exceptions.IllegalMoveException
 import exceptions.InvalidWordException
 import models.tiles.Piece
 import models.turn.Direction
+import models.turn.Move
 import java.util.*
 
 class Board(val board: Array<Array<Square>>) {
@@ -86,5 +89,83 @@ class Board(val board: Array<Array<Square>>) {
         set(coord, Square(get(coord).multiplier, null, null, null))
     }
 
+    fun findMove(move: Move): Pair<List<Coord>, Int> {
+        val boardClone = Board(board.map { it.clone() }.toTypedArray())
+        boardClone.run {
+            val placedSquares = LinkedList<Coord>()
 
+            var currentLocation = move.start
+
+            if (get(currentLocation).hasPiece())
+                throw IllegalMoveException("Can not start move on a square with a piece")
+
+            var placedWordScore = 0
+            var placedWordMultiplier = 1
+
+            //place all the tiles
+            for (piece in move.pieces) {
+                while (isValidCoordinate(currentLocation) && get(currentLocation).hasPiece()) {
+                    val sq = get(currentLocation)
+                    placedWordScore += when (sq.multiplier) {
+                        Multiplier.NONE -> sq.piece!!.value
+                        Multiplier.DOUBLE_LETTER -> sq.piece!!.value * 2
+                        Multiplier.TRIPLE_LETTER -> sq.piece!!.value * 3
+                        Multiplier.DOUBLE_WORD -> {
+                            placedWordMultiplier *= 2
+                            sq.piece!!.value
+                        }
+
+                        Multiplier.TRIPLE_WORD -> {
+                            placedWordMultiplier *= 3
+                            sq.piece!!.value
+                        }
+                    }
+                    currentLocation = when (move.direction) {
+                        Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
+                        Direction.DOWN -> Coord(currentLocation.x, currentLocation.y + 1)
+                        Direction.NONE -> throw IllegalStateException("Something has gone terribly wrong")
+                    }
+                }
+                if (!isValidCoordinate(currentLocation)) {
+                    throw IllegalMoveException("Move is out of bounds")
+                }
+
+                placedSquares.add(currentLocation)
+            }
+
+            var totalScore = 0
+
+            //validate move and score
+            val placedWord = findWordAt(move.start, move.direction)
+
+            if (!placedWord.joinToString { it.letter.toString() }.isValidScrabbleWord()) {
+                throw IllegalMoveException("Invalid word: $placedWord")
+            }
+
+            //validate perpendicular moves
+            for (coord in placedSquares) {
+                val word =
+                    findWordAt(coord, move.direction.perpendicular())
+
+                //score word
+                var wordScore = 0
+                var wordMultiplier = 1
+
+                wordScore += word.sumOf { it.value }
+                when (get(coord).multiplier) {
+                    Multiplier.DOUBLE_LETTER -> get(coord).piece!!.value
+                    Multiplier.TRIPLE_LETTER -> get(coord).piece!!.value * 2
+                    Multiplier.DOUBLE_WORD -> wordMultiplier *= 2
+                    Multiplier.TRIPLE_WORD -> wordMultiplier *= 3
+                    Multiplier.NONE -> {}
+                }
+                totalScore += (wordScore * wordMultiplier)
+
+                if (!word.joinToString { it.letter.toString() }.isValidScrabbleWord()) {
+                    throw IllegalMoveException("Invalid word: $word")
+                }
+            }
+            return placedSquares to totalScore
+        }
+    }
 }

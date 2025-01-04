@@ -13,10 +13,71 @@ import java.util.*
 class Board(val board: Array<Array<Square>>) {
     companion object {
         private val EMPTY_SQUARE = Square(Multiplier.NONE)
+
+        private fun getMultiplier(row: Int, col: Int): Multiplier {
+            // Center square
+            if (row == 7 && col == 7) return Multiplier.DOUBLE_WORD
+
+            // Triple Word Scores
+            if (isTripleWordSquare(row, col)) return Multiplier.TRIPLE_WORD
+
+            // Double Word Scores
+            if (isDoubleWordSquare(row, col)) return Multiplier.DOUBLE_WORD
+
+            // Triple Letter Scores
+            if (isTripleLetterSquare(row, col)) return Multiplier.TRIPLE_LETTER
+
+            // Double Letter Scores
+            if (isDoubleLetterSquare(row, col)) return Multiplier.DOUBLE_LETTER
+
+            return Multiplier.NONE
+        }
+
+        private fun isTripleWordSquare(row: Int, col: Int): Boolean {
+            // Corner squares and middle edges
+            return (row == 0 || row == 7 || row == 14) && (col == 0 || col == 7 || col == 14) && // Corners and middle edges
+                    !(row == 7 && col == 7) // Exclude center square
+        }
+
+        private fun isDoubleWordSquare(row: Int, col: Int): Boolean {
+            // Diagonal positions from corners until before premium squares
+            return row == col || row == 14 - col && // Diagonal positions
+                    row != 0 && row != 14 && // Exclude corners
+                    row < 5 || row > 9 // Only include positions before premium squares
+        }
+
+        private fun isTripleLetterSquare(row: Int, col: Int): Boolean {
+            val positions = listOf(
+                Coord(1, 5), Coord(1, 9),
+                Coord(5, 1), Coord(5, 5), Coord(5, 9), Coord(5, 13),
+                Coord(9, 1), Coord(9, 5), Coord(9, 9), Coord(9, 13),
+                Coord(13, 5), Coord(13, 9)
+            )
+            return positions.contains(Coord(row, col))
+        }
+
+        private fun isDoubleLetterSquare(row: Int, col: Int): Boolean {
+            val positions = listOf(
+                Coord(0, 3), Coord(0, 11),
+                Coord(2, 6), Coord(2, 8),
+                Coord(3, 0), Coord(3, 7), Coord(3, 14),
+                Coord(6, 2), Coord(6, 6), Coord(6, 8), Coord(6, 12),
+                Coord(7, 3), Coord(7, 11),
+                Coord(8, 2), Coord(8, 6), Coord(8, 8), Coord(8, 12),
+                Coord(11, 0), Coord(11, 7), Coord(11, 14),
+                Coord(12, 6), Coord(12, 8),
+                Coord(14, 3), Coord(14, 11)
+            )
+            return positions.contains(Coord(row, col))
+        }
     }
 
     //todo: Add multipliers
-    constructor() : this(Array(15) { Array(15) { EMPTY_SQUARE } })
+    constructor() : this(Array(15) { row ->
+        Array(15) { col ->
+            Square(getMultiplier(row, col))
+        }
+    })
 
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size

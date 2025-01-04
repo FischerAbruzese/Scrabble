@@ -10,13 +10,13 @@ class TextOut : ViewOutput {
         generatePlayerInfo(gameState).forEach { println(it) }
     }
 
-    fun generateGameInfo(gameState: GameState): String{
+    private fun generateGameInfo(gameState: GameState): String {
         val gameInfo = StringBuilder()
         gameInfo.append("Turn: ${gameState.turnNum} Pass Streak: ${gameState.passStreak}")
         return gameInfo.toString()
     }
 
-    fun generateBoardFrame(gameState: GameState): String {
+    private fun generateBoardFrame(gameState: GameState): String {
         val screen: StringBuilder = StringBuilder()
         val screenLength = 100
         screen.append("-".repeat(screenLength))
@@ -29,7 +29,7 @@ class TextOut : ViewOutput {
         return screen.toString()
     }
 
-    fun generatePlayerInfo(gameState: GameState): List<String>{
+    private fun generatePlayerInfo(gameState: GameState): List<String> {
         val players = ArrayList<String>()
         for (player in gameState.players) {
             val playerString = StringBuilder()

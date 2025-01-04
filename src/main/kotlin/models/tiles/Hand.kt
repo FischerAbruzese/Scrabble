@@ -50,12 +50,12 @@ class Hand(piecesInit: List<Piece>) {
     fun matchChars(piecesToMatch: List<Char>): Pair<List<Piece>, List<Piece>>? {
         val matched = ArrayList<Piece>()
         val piecesCopy = pieces.toMutableList()
-        for (m in piecesToMatch) {
+        outer@ for (m in piecesToMatch) {
             for (p in piecesCopy) {
                 if (p.letter == m) {
                     matched.add(p)
                     piecesCopy.remove(p)
-                    break
+                    continue@outer
                 }
             }
             return null // No match

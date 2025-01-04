@@ -12,3 +12,5 @@ fun Direction.perpendicular(): Direction {
     if (this == DOWN) return ACROSS
     return DOWN
 }
+
+fun StringBuilder.appendLn(text: String) = append(text).append("\n")

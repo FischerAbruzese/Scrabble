@@ -6,12 +6,12 @@ class Hand(var pieces: MutableList<Piece>) {
     fun size() = pieces.size
 
     /**
-     * Removes a list of pieces from the hand if all the pieces are in the hand, otherwise returns false
+     * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
      */
-    fun removePieces(piecesToRemove: List<Piece>): Boolean{
-        if(!containsPieces(piecesToRemove)) return false
+    fun removePieces(piecesToRemove: List<Piece>): List<Piece>?{
+        if(!containsPieces(piecesToRemove)) return null
         pieces.removeAll(piecesToRemove)
-        return true
+        return piecesToRemove
     }
 
     /**
@@ -20,29 +20,42 @@ class Hand(var pieces: MutableList<Piece>) {
     fun containsPieces(piecesToCheck: List<Piece>): Boolean = pieces.containsAll(piecesToCheck)
 
     /**
-     * Removes a list of pieces from the hand if all the pieces are in the hand, otherwise returns false
+     * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
      */
-    fun removePieces(piecesToRemove: List<Char>): Boolean{
-        if(!containsPieces(piecesToRemove)) return false
-        for(pieceToRemove in piecesToRemove){
-            for(piece in pieces){
-                if(piece.letter == pieceToRemove){
-                    pieces.remove(piece)
-                    break
-                }
-            }
-        }
-        return true
+    fun removePieces(piecesToRemove: List<Char>): List<Piece>?{
+        val matchChars = matchChars(piecesToRemove)
+        if(matchChars == null) return null
+        pieces = matchChars.second.toMutableList()
+        return matchChars.first
     }
 
     /**
      * Checks if every element of a list of pieces is in the hand
      */
     fun containsPieces(piecesToCheck: List<Char>): Boolean{
-        val check: MutableList<Char> = pieces.map{it.letter}.toMutableList()
-        for(piece in piecesToCheck){
-            if (!check.remove(piece)) return false
-        }
-        return true
+        return matchChars(piecesToCheck) != null
     }
+
+    /**
+     * Given a list of characters, attempts to find a separate out a matching list of pieces
+     *
+     * @return Pair of matched pieces and the remainder pieces
+     */
+    fun matchChars(piecesToMatch: List<Char>): Pair<List<Piece>, List<Piece>>?{
+        val matched = ArrayList<Piece>()
+        val piecesCopy = pieces.toMutableList()
+        for(m in piecesToMatch){
+            for(p in piecesCopy){
+                if(p.letter == m){
+                    matched.add(p)
+                    piecesCopy.remove(p)
+                    break
+                }
+            }
+            return null // No match
+        }
+        return Pair(matched, piecesCopy)
+    }
+
+    fun isEmpty(): Boolean = pieces.isEmpty()
 }

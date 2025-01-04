@@ -2,6 +2,7 @@ package views
 
 
 import controllers.players.PlayerController
+import exceptions.IllegalMoveException
 import models.turn.Direction
 import models.GameState
 import models.Player
@@ -116,7 +117,10 @@ class TextIn : ViewInput, PlayerController {
 
             try {
                 val move = Move(coord, direction, tiles)
-                gameState.board.findMove(move) //check if move is valid
+                val findMove = gameState.board.findMove(move) //check if move is valid
+                val center = (gameState.board.size())/2
+                if(gameState.turnNum == 0 && !findMove.first.contains(Coord(center, center))) //Check if the first move contains the center square
+                    throw IllegalMoveException("First move must contain the center square $center,$center")
                 player.hand.addAll(gameState.bag.draw(tiles.size)) //draw from bag
 
                 return Move(coord, direction, tiles)

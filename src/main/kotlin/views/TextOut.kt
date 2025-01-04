@@ -13,7 +13,7 @@ class TextOut : ViewOutput {
 
     private fun generateGameInfo(gameState: GameState): String {
         val gameInfo = StringBuilder()
-        gameInfo.appendLn("Turn: ${gameState.turnNum} Pass Streak: ${gameState.passStreak}")
+        gameInfo.appendLn("Turn: ${gameState.turnNum} | Pass Streak: ${gameState.passStreak}")
         gameInfo.appendLn("Bag: ${gameState.bag.pieces.joinToString(separator = ""){it.letter.toString()}}")
         return gameInfo.toString()
     }
@@ -40,7 +40,7 @@ class TextOut : ViewOutput {
         val players = ArrayList<String>()
         for (player in gameState.players) {
             val playerString = StringBuilder()
-            playerString.appendLn("Player: ${player.name} Score: ${player.score} Hand: ${player.hand.pieces.joinToString { it.letter.toString() }}")
+            playerString.appendLn("Player: ${player.name} | Score: ${player.score} | Hand: ${player.hand.pieces.joinToString { it.letter.toString() }}")
             players.add(playerString.toString())
         }
         return players

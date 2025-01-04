@@ -1,5 +1,7 @@
 package controllers
 
+import controllers.util.Dictionary
+import exceptions.InvalidWordException
 import models.GameState
 import models.Player
 import models.board.Coord
@@ -17,6 +19,7 @@ import java.util.*
 class GameController {
     private lateinit var game: GameState
     private var out: TextOut = TextOut()
+    private val dict: Dictionary = Dictionary("src/main/kotlin/resources/dictionary.csv")
 
     constructor(gameState: GameState) {
         this.game = gameState

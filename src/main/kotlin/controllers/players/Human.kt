@@ -1,4 +1,4 @@
 package controllers.players
 
-class Human : PlayerController {
+class Human() : PlayerController {
 }

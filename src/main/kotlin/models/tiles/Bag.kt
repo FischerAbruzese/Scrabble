@@ -23,6 +23,11 @@ class Bag(pieces: List<Piece>) {
         return pieces.removeLastOrNull()
     }
 
+    fun draw(n: Int): List<Piece> {
+        if (n > size()) throw NotEnoughPiecesException("Bag does not have enough pieces to draw")
+        return List(n) { nextPiece()!! }
+    }
+
     /**
      * Returns but does not remove the next piece in the bag that will be returned by [nextPiece] if no exchanges are made. Null if the bag is empty.
      */

@@ -10,4 +10,8 @@ class Square(
     val playerPlaced: Player? = null
 ) {
     fun hasPiece(): Boolean = piece != null
+
+    fun withPiece(piece: Piece, turnPlaced: Int?, playerPlaced: Player?): Square {
+        return Square(multiplier, piece, turnPlaced, playerPlaced)
+    }
 }

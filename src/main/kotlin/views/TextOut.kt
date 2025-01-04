@@ -22,11 +22,11 @@ class TextOut : ViewOutput {
         val screenLength = 100
         screen.appendLn("-".repeat(screenLength))
         screen.appendLn(centerString("SCRABBLE", screenLength))
-        screen.appendLn(centerString("*" + "-".repeat(gameState.board.size()) + "*", screenLength))
+        screen.appendLn(centerString("*" + " - ".repeat(gameState.board.size()) + "*", screenLength))
         for (row in gameState.board.board) {
-            screen.appendLn(centerString("|" + row.map{it.piece?.letter?:" "}.joinToString("") + "|", screenLength))
+            screen.appendLn(centerString("|" + row.map{" " + (it.piece?.letter?:" ") + " "}.joinToString("") + "|", screenLength))
         }
-        screen.appendLn(centerString("*" + "-".repeat(gameState.board.size()) + "*", screenLength))
+        screen.appendLn(centerString("*" + " - ".repeat(gameState.board.size()) + "*", screenLength))
         return screen.toString()
     }
 

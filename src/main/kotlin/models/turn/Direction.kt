@@ -1,5 +1,5 @@
 package models.turn
 
 enum class Direction {
-    DOWN, ACROSS
+    DOWN, ACROSS, NONE;
 }

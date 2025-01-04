@@ -1,128 +1,193 @@
 package controllers
 
+import controllers.players.Human
+import controllers.util.isValidScrabbleWord
+import controllers.util.perpendicular
+import exceptions.IllegalMoveException
 import exceptions.InvalidWordException
 import models.GameState
-import models.board.Board
+import models.Player
 import models.board.Coord
-import models.board.Square
-import models.turn.Direction
-import models.turn.Move
-import views.ViewInput
-import views.ViewOutput
+import models.board.Multiplier
+import models.tiles.Bag
+import models.tiles.Hand
+import models.turn.*
 import java.util.*
 
-class GameController(val game: GameState, val viewInput: ViewInput, val viewOutput: ViewOutput) {
-    fun nextMove() {
-        val currentPlayer = game.nextPlayer()
-        val turn = currentPlayer.playerController.getTurn(game, currentPlayer)
-        game.makeTurn(turn)
+class GameController {
+    private lateinit var game: GameState
+
+    constructor(gameState: GameState) {
+        this.game = gameState
     }
 
-    private fun findBeginningOfWord(coord: Coord, direction: Direction, board: Board): Coord {
-        var currCord = coord
-        var nextCoord = Coord(
-            coord.x + if (direction == Direction.ACROSS) 1 else 0,
-            coord.y + if (direction == Direction.DOWN) 1 else 0
-        )
-        while (board.get(nextCoord).hasPiece() && nextCoord.x > 0 && nextCoord.y > 0) {
-            currCord = nextCoord
-            nextCoord = Coord(
-                coord.x + if (direction == Direction.ACROSS) 1 else 0,
-                coord.y + if (direction == Direction.DOWN) 1 else 0
+    //this is where you change the default game type
+    constructor() {
+        val bag = Bag(parsePieceFile("resources/characters.csv"))
+
+        val players = listOf(
+            Player(
+                "Player 1",
+                Human(),
+                Hand(bag.draw(7))
+            ),
+            Player(
+                "Player 2",
+                Human(),
+                Hand(bag.draw(7))
             )
-        }
-        return currCord
+        )
+
+        this.game = GameState(players, bag)
     }
 
+    fun startGame() {
+        while (!game.gameOver()) {
+            nextMove()
+        }
+    }
 
-    fun scoreMove(board: Board, move: Move): Int {
-        val currentWord = StringBuilder()
-        var wordMultiplier = 1
-        var score = 0
+    fun nextMove() {
+        val currentPlayer = game.currentPlayer()
+        val turn = currentPlayer.playerController.getTurn(game, currentPlayer)
+        makeTurn(turn)
+    }
 
-        val piecesToPlace = move.pieces.toMutableList()
-        val placeAt = hashSetOf<Coord>()
-        for ((coord, square) in traverseMoveWithCoords(move, board, true)) {
-            if (square.piece == null) {
-                val pieceToPlace = piecesToPlace.removeFirst()
-                if (move.direction == Direction.ACROSS) {
-                    var currentCoord = Coord(coord.x, coord.y - 1)
-                    while (board.get(currentCoord).piece != null && currentCoord.y > 0) {
-                        currentCoord = Coord(currentCoord.x, currentCoord.y - 1)
-                    }
-                    if (currentCoord.y > 0) currentCoord = Coord(currentCoord.x, currentCoord.y + 1)
+    /**
+     * Executes a turn if valid
+     */
+    private fun makeTurn(turn: Turn) {
+        when (turn) {
+            is Move -> {
+                try {
+                    game.currentPlayer().score += playMove(turn)
+                } catch (ex: InvalidWordException) {
+                    game.currentPlayer()
+                }
+            }
 
-                    if (currentCoord != coord) {
-                        val perpendicularWordBuilder = StringBuilder()
-                        while (board.get(currentCoord).piece != null && currentCoord.y <= 15) {
-                            if (currentCoord == coord) perpendicularWordBuilder.append(pieceToPlace.letter)
-                            else perpendicularWordBuilder.append(board.get(currentCoord).piece!!.letter)
-                            currentCoord = Coord(currentCoord.x, currentCoord.y + 1)
+            is Exchange -> {
+                game.passStreak = 0
+            }
+
+            is Pass -> {
+                game.passStreak++
+            }
+
+            else -> throw IllegalArgumentException("Unimplemented turn type")
+        }
+        game.turnNum++
+    }
+
+    /**
+     * Checks if the game has ended and performs post-game actions
+     */
+    private fun checkGameOver(): Boolean {
+        if (game.passStreak < game.players.size) return false
+        game.players.forEach { it.gameEnd() }
+        return true
+    }
+
+    private var previousMove: List<Coord>? = null
+
+    fun undoMove() {
+        for (coord in previousMove ?: throw IllegalArgumentException("No move to undo")) {
+            game.board.removePieceAt(coord)
+        }
+    }
+
+    private fun findMove(move: Move): Pair<List<Coord>, Int> {
+        val placedSquares = LinkedList<Coord>()
+
+        var currentLocation = move.start
+
+        if (game.board[currentLocation].hasPiece())
+            throw IllegalMoveException("Can not start move on a square with a piece")
+
+        var placedWordScore = 0
+        var placedWordMultiplier = 1
+
+        //place all the tiles
+        for (piece in move.pieces) {
+            try {
+                while (game.board.isValidCoordinate(currentLocation) && game.board[currentLocation].hasPiece()) {
+                    val sq = game.board[currentLocation]
+                    placedWordScore += when (sq.multiplier) {
+                        Multiplier.NONE -> sq.piece!!.value
+                        Multiplier.DOUBLE_LETTER -> sq.piece!!.value * 2
+                        Multiplier.TRIPLE_LETTER -> sq.piece!!.value * 3
+                        Multiplier.DOUBLE_WORD -> {
+                            placedWordMultiplier *= 2
+                            sq.piece!!.value
                         }
-                        if (!isValidScrabbleWord(perpendicularWordBuilder.toString())) throw InvalidWordException()
+
+                        Multiplier.TRIPLE_WORD -> {
+                            placedWordMultiplier *= 3
+                            sq.piece!!.value
+                        }
+                    }
+                    currentLocation = when (move.direction) {
+                        Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
+                        Direction.DOWN -> Coord(currentLocation.x, currentLocation.y + 1)
+                        Direction.NONE -> throw IllegalStateException("Something has gone terribly wrong")
                     }
                 }
+                if (!game.board.isValidCoordinate(currentLocation)) {
+                    throw IllegalMoveException("Move is out of bounds")
+                }
+            } catch (ex: Exception) {
+                previousMove = placedSquares
+                undoMove()
+                throw ex
             }
-
-            //categorize to already placed or about to be placed
-            //
+            game.placePiece(currentLocation, piece)
+            placedSquares.add(currentLocation)
         }
 
-//
-//            score += when (currentSquare.multiplier) {
-//                Multiplier.DOUBLE_LETTER -> currentPiece.value * 2
-//                Multiplier.TRIPLE_LETTER -> currentPiece.value * 3
-//                Multiplier.DOUBLE_WORD -> currentPiece.value.also { wordMultiplier *= 2 }
-//                Multiplier.TRIPLE_WORD -> currentPiece.value.also { wordMultiplier *= 3 }
-//                Multiplier.NONE -> currentPiece.value
-//            }
-//        }
+        previousMove = placedSquares
 
-    }
+        var totalScore = 0
 
-    fun isValidScrabbleWord(word: String): Boolean {
-        return true //todo
-    }
+        //validate move and score
+        val placedWord = game.board.findWordAt(move.start, move.direction)
 
-    fun traverseMoveWithCoords(move: Move, board: Board, includeBoardPieces: Boolean): Iterator<Pair<Coord, Square>> {
-        return object : Iterator<Pair<Coord, Square>> {
-            var currentCoord = move.start
-            val pieceList = LinkedList(move.pieces)
+        if (!placedWord.joinToString { it.letter.toString() }.isValidScrabbleWord()) {
+            undoMove()
+            throw IllegalMoveException("Invalid word: $placedWord")
+        }
 
-            override fun hasNext(): Boolean {
-                if (!includeBoardPieces) return pieceList.isNotEmpty()
-                return pieceList.isNotEmpty() && board.get(currentCoord).piece != null
+        //validate perpendicular moves
+        for (coord in placedSquares) {
+            val word =
+                game.board.findWordAt(coord, move.direction.perpendicular())
+
+            //score word
+            var wordScore = 0
+            var wordMultiplier = 1
+
+            wordScore += word.sumOf { it.value }
+            when (game.board[coord].multiplier) {
+                Multiplier.DOUBLE_LETTER -> game.board[coord].piece!!.value
+                Multiplier.TRIPLE_LETTER -> game.board[coord].piece!!.value * 2
+                Multiplier.DOUBLE_WORD -> wordMultiplier *= 2
+                Multiplier.TRIPLE_WORD -> wordMultiplier *= 3
+                Multiplier.NONE -> {}
             }
+            totalScore += (wordScore * wordMultiplier)
 
-            override fun next(): Pair<Coord, Square> {
-                var currentSquare = board.get(currentCoord)
-                var prevCoord = currentCoord
-
-                if (!includeBoardPieces) {
-                    currentCoord = Coord(
-                        currentCoord.x + if (move.direction == Direction.ACROSS) 1 else 0,
-                        currentCoord.y + if (move.direction == Direction.DOWN) 1 else 0
-                    )
-                    return prevCoord to currentSquare
-                }
-
-                currentCoord = Coord(
-                    currentCoord.x + if (move.direction == Direction.ACROSS) 1 else 0,
-                    currentCoord.y + if (move.direction == Direction.DOWN) 1 else 0
-                )
-
-                while (currentSquare.piece != null) {
-                    currentSquare = board.get(currentCoord)
-                    prevCoord = currentCoord
-                    currentCoord = Coord(
-                        currentCoord.x + if (move.direction == Direction.ACROSS) 1 else 0,
-                        currentCoord.y + if (move.direction == Direction.DOWN) 1 else 0
-                    )
-                }
-                return prevCoord to currentSquare
+            if (!word.joinToString { it.letter.toString() }.isValidScrabbleWord()) {
+                undoMove()
+                throw IllegalMoveException("Invalid word: $word")
             }
         }
+
+        undoMove()
+        return placedSquares to totalScore
     }
 
-
+    fun playMove(move: Move): Int {
+        val (placedSquares, totalScore) = findMove(move)
+        placedSquares.zip(move.pieces).forEach { game.placePiece(it.first, it.second) }
+        return totalScore
+    }
 }

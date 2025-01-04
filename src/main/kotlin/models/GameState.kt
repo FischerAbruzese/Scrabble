@@ -1,17 +1,15 @@
 package models
 
 import models.board.Board
+import models.board.Coord
 import models.tiles.Bag
-import models.turn.Exchange
-import models.turn.Move
-import models.turn.Pass
-import models.turn.Turn
+import models.tiles.Piece
 
 
 class GameState(
     val players: List<Player>,
+    val bag: Bag,
     val board: Board = Board(),
-    val bag: Bag = Bag(),
     /**
      * Number of turns that have been made so far
      */
@@ -23,49 +21,15 @@ class GameState(
     var passStreak: Int = 0
 ) {
     /**
-     * Executes a turn if valid
-     *
-     * @return true if the turn ends the game, false otherwise
-     */
-    fun makeTurn(turn: Turn): Boolean {
-        val nextPlayer = nextPlayer()
-        when (turn) {
-            is Move -> {
-                if (!isValidMove(turn)) throw InvalidMoveException()
-                passStreak = 0
-
-                return checkEnd()
-            }
-
-            is Exchange -> {
-                passStreak = 0
-                return false //Exchanging can never end the game
-            }
-
-            is Pass -> {
-                passStreak++
-                return checkEnd()
-                //Do Nothing
-            }
-
-            else -> throw IllegalArgumentException("Unimplemented turn type")
-        }
-        turnNum++
-        return true
-    }
-
-    /**
      * The player whose turn it is to move
      */
-    fun nextPlayer() = players[turnNum % players.size]
+    fun currentPlayer() = players[turnNum % players.size]
 
+    fun gameOver(): Boolean {
+        return players.any { it.isHandEmpty() } || passStreak == players.size
+    }
 
-    /**
-     * Checks if the game has ended and performs post-game actions
-     */
-    fun checkEnd(): Boolean {
-        if (passStreak < players.size) return false
-        players.forEach { it.gameEnd() }
-        return true
+    fun placePiece(coord: Coord, piece: Piece) {
+        board[coord] = board[coord].withPiece(piece, turnNum, currentPlayer())
     }
 }

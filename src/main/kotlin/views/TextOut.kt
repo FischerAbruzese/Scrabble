@@ -39,7 +39,7 @@ class TextOut : ViewOutput {
         return players
     }
 
-    fun centerString(text: String, length: Int, character: Char = ' '): String {
+    private fun centerString(text: String, length: Int, character: Char = ' '): String {
         if (length < text.length) throw IllegalArgumentException()
         val padding = (length - text.length) / 2
         return character.toString().repeat(padding) + text + character.toString().repeat(length - text.length - padding)

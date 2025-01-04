@@ -56,7 +56,7 @@ class TextOut : ViewOutput {
         val columnNumbers = (0 until gameState.board.size()).joinToString("") {
             it.toString().padEnd((columnWidth + 1) / 2).padStart(columnWidth)
         }
-        screen.appendLn(centerString("$columnNumbers", screenLength))
+        screen.appendLn(centerString(columnNumbers, screenLength))
 
         // Top board
         screen.appendLn(centerString("*" + "---".repeat(gameState.board.size()) + "*", screenLength))
@@ -66,14 +66,15 @@ class TextOut : ViewOutput {
             screen.appendLn(
                 centerString("" +
                     index + " |" +
-                        row.map { " " + (it.piece?.letter ?:
-                            (when(it.multiplier){
+                        row.joinToString("") {
+                            " " + (it.piece?.letter ?: ((when (it.multiplier) {
                                 Multiplier.TRIPLE_WORD -> BRIGHT_RED
                                 Multiplier.DOUBLE_WORD -> YELLOW
                                 Multiplier.TRIPLE_LETTER -> BRIGHT_MAGENTA
                                 Multiplier.DOUBLE_LETTER -> BRIGHT_BLUE
                                 Multiplier.NONE -> ""
-                            }) + "·" + RESET) + " " }.joinToString("") +
+                            }) + "·" + RESET)) + " "
+                        } +
                     "| " + index,
                     screenLength
                 )
@@ -84,7 +85,7 @@ class TextOut : ViewOutput {
         screen.appendLn(centerString("*" + "---".repeat(gameState.board.size()) + "*", screenLength))
 
         //Bottom numbers
-        screen.appendLn(centerString("$columnNumbers", screenLength))
+        screen.appendLn(centerString(columnNumbers, screenLength))
 
         //Bottom border
         screen.appendLn("-".repeat(screenLength))
@@ -96,7 +97,7 @@ class TextOut : ViewOutput {
         val players = ArrayList<String>()
         for (player in gameState.players) {
             val playerString = StringBuilder()
-            playerString.appendLn("Player: ${player.name} | Score: ${player.score} | Hand: ${player.hand.pieces.joinToString { it.letter.toString() }}")
+            playerString.appendLn("Player: ${player.name} | Score: ${player.score} | Hand: ${player.hand.pieces.joinToString { "${it.letter}(${it.value})" }}")
             players.add(playerString.toString())
         }
         return players

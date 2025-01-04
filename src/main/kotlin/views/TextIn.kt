@@ -59,11 +59,11 @@ class TextIn : PlayerController {
                 printError("Invalid input: $input")
                 continue
             }
-            if(input!!.length > gameState.bag.size()){
+            if(input.length > gameState.bag.size()){
                 printError("Not enough pieces left in the bag")
                 continue
             }
-            val piecesToRemove = player.hand.containsPieces(input!!.toCharArray().toList())
+            val piecesToRemove = player.hand.containsPieces(input.toCharArray().toList())
             if(piecesToRemove == null)
                 printError("You do not have the required pieces to exchange.")
             else {
@@ -84,7 +84,7 @@ class TextIn : PlayerController {
                     printError("Invalid input: $input")
                     continue
                 }
-                val piecesToRemove = player.hand.containsPieces(input!!.toCharArray().toList())
+                val piecesToRemove = player.hand.containsPieces(input.toCharArray().toList())
                 if (piecesToRemove == null) {
                     printError("You do not have the required pieces to play that.")
                     continue
@@ -152,7 +152,7 @@ class TextIn : PlayerController {
             while (direction == null){
                 ask("What direction would you like to place the pieces? (D)own, (A)cross")
                 var input = readLine()
-                input = input?.toUpperCase()?.first().toString()
+                input = input?.uppercase()?.first().toString()
                 if(input == "D") direction = Direction.DOWN
                 else if(input == "A") direction = Direction.ACROSS
                 else printError("Invalid input: $input")

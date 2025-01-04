@@ -11,6 +11,7 @@ import models.board.Coord
 import models.board.Multiplier
 import models.tiles.Bag
 import models.tiles.Hand
+import models.tiles.Piece
 import models.turn.*
 import java.util.*
 
@@ -39,6 +40,17 @@ class GameController {
         )
 
         this.game = GameState(players, bag)
+    }
+
+    fun parsePieceFile(path: String): List<Piece> {
+        val pieces = mutableListOf<Piece>()
+        val pieceFile = Scanner(java.io.File(path))
+        while (pieceFile.hasNextLine()) {
+            val line = pieceFile.nextLine().split(",")
+            val pieceToAdd = Piece(line[0][0], line[2].toInt())
+            repeat(line[1].toInt()) { pieces.add(pieceToAdd.copy()) }
+        }
+        return pieces
     }
 
     fun startGame() {

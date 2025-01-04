@@ -25,14 +25,15 @@ class GameController {
     constructor() {
         val bag = Bag(parsePieceFile("src/main/kotlin/resources/characters.csv"))
 
+
         val players = listOf(
             Player(
-                "Player 1",
+                "Mari",
                 TextIn(),
                 Hand(bag.draw(7))
             ),
             Player(
-                "Player 2",
+                "Sky",
                 TextIn(),
                 Hand(bag.draw(7))
             )
@@ -64,13 +65,17 @@ class GameController {
                 game.passStreak = 0
                 game.currentPlayer().run {
                     score += playMove(turn)
-                    hand.usePieces(game.bag, turn.pieces)
+                    val pulled = hand.usePieces(game.bag, turn.pieces)
+                    playerController.pushMessage("Used ${turn.pieces.map{it.letter}} pieces, pulled ${pulled.map{it.letter}}")
                 }
             }
 
             is Exchange -> {
                 game.passStreak = 0
-                game.currentPlayer().hand.exchangePieces(game.bag, turn.exchangePieces)
+                game.currentPlayer().run {
+                    val pulled = hand.exchangePieces(game.bag, turn.exchangePieces)
+                    playerController.pushMessage("Exchanged ${turn.exchangePieces.map { it.letter }} pieces for ${pulled.map { it.letter }}")
+                }
             }
 
             is Pass -> {

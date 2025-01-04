@@ -15,13 +15,17 @@ import models.turn.Pass
 import models.turn.Turn
 import kotlin.system.exitProcess
 
-class TextIn : ViewInput, PlayerController {
+class TextIn : PlayerController {
 
     companion object {
         const val WHITE_BOLD = "\u001B[1;37m"
         const val RED = "\u001B[31m"
         const val GREEN = "\u001B[32m"
         const val YELLOW = "\u001B[33m"
+        const val BLUE = "\u001B[34m"
+        const val PURPLE = "\u001B[35m"
+        const val CYAN = "\u001B[36m"
+
         const val RESET = "\u001B[0m"
 
     }
@@ -180,5 +184,9 @@ class TextIn : ViewInput, PlayerController {
 
     private fun ask(message: String) {
         println(YELLOW + message + RESET)
+    }
+
+    override fun pushMessage(message: String){ //TODO: Move to personalized output
+        println(CYAN + message + RESET)
     }
 }

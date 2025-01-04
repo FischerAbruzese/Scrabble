@@ -10,8 +10,12 @@ import models.turn.Move
 import java.util.*
 
 class Board(val board: Array<Array<Square>>) {
+    companion object {
+        private val EMPTY_SQUARE = Square(Multiplier.NONE)
+    }
+
     //todo: Add multipliers
-    constructor() : this(Array(15) { Array(15) { Square(Multiplier.NONE) } })
+    constructor() : this(Array(15) { Array(15) { EMPTY_SQUARE } })
 
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size

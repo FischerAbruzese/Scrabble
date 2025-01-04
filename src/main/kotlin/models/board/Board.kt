@@ -20,7 +20,7 @@ class Board(val board: Array<Array<Square>>) {
 
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size
-        board.size % 2 == 1 //Board must be odd
+                && board.size % 2 == 1 //Board must be odd
     }
 
     fun center(): Coord {

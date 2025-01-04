@@ -1,5 +1,5 @@
 package exceptions
 
-class IllegalMoveException(s: String) : RuntimeException(s) {
+class IllegalMoveException(s: String) : Exception(s) {
 
 }

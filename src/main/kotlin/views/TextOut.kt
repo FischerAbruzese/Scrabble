@@ -14,6 +14,7 @@ class TextOut : ViewOutput {
     private fun generateGameInfo(gameState: GameState): String {
         val gameInfo = StringBuilder()
         gameInfo.appendLn("Turn: ${gameState.turnNum} Pass Streak: ${gameState.passStreak}")
+        gameInfo.appendLn("Bag: ${gameState.bag.pieces.joinToString{it.letter.toString()}}")
         return gameInfo.toString()
     }
 

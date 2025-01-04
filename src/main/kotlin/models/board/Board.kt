@@ -41,9 +41,9 @@ class Board(val board: Array<Array<Square>>) {
 
         private fun isDoubleWordSquare(row: Int, col: Int): Boolean {
             // Diagonal positions from corners until before premium squares
-            return row == col || row == 14 - col && // Diagonal positions
+            return (row == col || row == 14 - col) && // Diagonal positions
                     row != 0 && row != 14 && // Exclude corners
-                    row < 5 || row > 9 // Only include positions before premium squares
+                    (row < 5 || row > 9) // Only include positions before premium squares
         }
 
         private fun isTripleLetterSquare(row: Int, col: Int): Boolean {
@@ -142,6 +142,7 @@ class Board(val board: Array<Array<Square>>) {
     }
 
     private fun findBeginningOfWord(coord: Coord, direction: Direction): Coord {
+        if(direction == Direction.NONE) throw IllegalArgumentException("Can't find a word without a direction")
         var currCord = coord
         var nextCoord = Coord(
             coord.x - if (direction == Direction.ACROSS) 1 else 0,
@@ -150,8 +151,8 @@ class Board(val board: Array<Array<Square>>) {
         while (nextCoord.x > 0 && nextCoord.y > 0 && this[nextCoord].hasPiece()) {
             currCord = nextCoord
             nextCoord = Coord(
-                coord.x - if (direction == Direction.ACROSS) 1 else 0,
-                coord.y - if (direction == Direction.DOWN) 1 else 0
+                currCord.x - if (direction == Direction.ACROSS) 1 else 0,
+                currCord.y - if (direction == Direction.DOWN) 1 else 0
             )
         }
         return currCord
@@ -182,7 +183,7 @@ class Board(val board: Array<Array<Square>>) {
             var placedWordScore = 0
             var placedWordMultiplier = 1
 
-            if (move.pieces.size == 1) {
+            if (move.direction == Direction.NONE) {
                 //if there's a tile to the left, our word is across
                 if (get(Coord(currentLocation.x - 1, currentLocation.y)).hasPiece()) {
                     move = Move(move.start, Direction.ACROSS, move.pieces)
@@ -209,17 +210,12 @@ class Board(val board: Array<Array<Square>>) {
             //place all the tiles
             var usesBoardPiece = false
             for (piece in move.pieces) {
-                while (isValidCoordinate(currentLocation) && get(currentLocation).hasPiece()) {
-                    val sq = get(currentLocation)
-                    placedWordScore += sq.piece!!.value
-                    usesBoardPiece = true
+                //count all pieces before the next open spot
+                val (newLocation, score, usedBoardPiece) = countPlacedTiles(currentLocation, usesBoardPiece, move)
+                currentLocation = newLocation
+                placedWordScore += score
+                usesBoardPiece = usedBoardPiece
 
-                    currentLocation = when (move.direction) {
-                        Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
-                        Direction.DOWN -> Coord(currentLocation.x, currentLocation.y + 1)
-                        Direction.NONE -> throw IllegalStateException("Something has gone terribly wrong")
-                    }
-                }
                 if (!isValidCoordinate(currentLocation)) {
                     throw IllegalMoveException("Move is out of bounds")
                 }
@@ -252,6 +248,11 @@ class Board(val board: Array<Array<Square>>) {
                     Direction.NONE -> currentLocation
                 }
             }
+            //count any tiles that exist after the placement
+            val (_, score, usedBoardPiece) = countPlacedTiles(currentLocation, usesBoardPiece, move)
+            placedWordScore += score
+            usesBoardPiece = usedBoardPiece
+
             if (!usesBoardPiece && !placedSquares.contains(center()))
                 throw BoardPieceNotUsedException("Move must use a board piece")
 
@@ -289,5 +290,27 @@ class Board(val board: Array<Array<Square>>) {
             }
             return placedSquares to totalScore
         }
+    }
+
+    private fun countPlacedTiles(
+        currentLocation: Coord,
+        usesBoardPiece: Boolean,
+        move: Move
+    ): Triple<Coord, Int, Boolean> {
+        var loc = currentLocation
+        var pieceScoreSum = 0
+        var foundPiece = usesBoardPiece
+        while (isValidCoordinate(loc) && get(loc).hasPiece()) {
+            val sq = get(loc)
+            pieceScoreSum += sq.piece!!.value
+            foundPiece = true
+
+            loc = when (move.direction) {
+                Direction.ACROSS -> Coord(loc.x + 1, loc.y)
+                Direction.DOWN -> Coord(loc.x, loc.y + 1)
+                Direction.NONE -> throw IllegalStateException("Something has gone terribly wrong")
+            }
+        }
+        return Triple(loc, pieceScoreSum, foundPiece)
     }
 }

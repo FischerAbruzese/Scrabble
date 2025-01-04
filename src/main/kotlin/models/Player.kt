@@ -3,7 +3,8 @@ package models
 import controllers.players.PlayerController
 import models.tiles.Hand
 
-data class Player(
+data class
+Player(
     /** Name of the player */
     val name: String = "Unnamed",
     /** The controller for this player */

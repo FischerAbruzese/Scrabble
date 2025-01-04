@@ -27,7 +27,6 @@ class TextIn : PlayerController {
         const val CYAN = "\u001B[36m"
 
         const val RESET = "\u001B[0m"
-
     }
 
     override fun getTurn(gameState: GameState, player: Player): Turn {
@@ -35,7 +34,8 @@ class TextIn : PlayerController {
             "M" -> queryMove(gameState, player)
             "E" -> queryExchange(gameState, player)
             "P" -> return Pass()
-            else -> exitProcess(0)
+            "Q" -> exitProcess(0)
+            else -> return Pass()
         }
     }
 
@@ -43,7 +43,8 @@ class TextIn : PlayerController {
         while (true) {
             ask("${playerName}, what would you like to do? (M)ove, (E)xchange, (P)ass, (Q)uit?")
             var input = readLine()
-            input = input?.toUpperCase()?.first().toString()
+            if(input == null || input.isEmpty()) continue
+            input = input.uppercase().first().toString()
             if (input == "M" || input == "E" || input == "P" || input == "Q") return input
             else printError("Invalid input: $input")
         }
@@ -171,7 +172,7 @@ class TextIn : PlayerController {
                     printError("First move must contain the center square $center,$center")
                 } else
                     printError(e.message)
-            } catch (e: IllegalMoveException){
+            } catch (e: Exception){
                 printError(e.message)
             }
         }

@@ -2,10 +2,32 @@ package views
 
 import controllers.util.appendLn
 import models.GameState
+import models.board.Multiplier
 
 class TextOut : ViewOutput {
+    companion object {
+        const val RED = "\u001B[31m"
+        const val GREEN = "\u001B[32m"
+        const val YELLOW = "\u001B[33m"
+        const val BLUE = "\u001B[34m"
+        const val PURPLE = "\u001B[35m"
+        const val CYAN = "\u001B[36m"
+
+        // Bright text colors
+        const val BRIGHT_BLACK: String = "\u001B[30;1m"
+        const val BRIGHT_RED: String = "\u001B[31;1m"
+        const val BRIGHT_GREEN: String = "\u001B[32;1m"
+        const val BRIGHT_YELLOW: String = "\u001B[33;1m"
+        const val BRIGHT_BLUE: String = "\u001B[34;1m"
+        const val BRIGHT_MAGENTA: String = "\u001B[35;1m"
+        const val BRIGHT_CYAN: String = "\u001B[36;1m"
+        const val BRIGHT_WHITE: String = "\u001B[37;1m"
+
+        const val RESET = "\u001B[0m"
+    }
+
     fun push(gameState: GameState) {
-        println("\n".repeat(2))
+        println("\n".repeat(1))
         println(generateGameInfo(gameState))
         println(generateBoardFrame(gameState))
         generatePlayerInfo(gameState).forEach { print(it) }
@@ -44,7 +66,14 @@ class TextOut : ViewOutput {
             screen.appendLn(
                 centerString("" +
                     index + " |" +
-                        row.map { " " + (it.piece?.letter ?: "·") + " " }.joinToString("") +
+                        row.map { " " + (it.piece?.letter ?:
+                            (when(it.multiplier){
+                                Multiplier.TRIPLE_WORD -> BRIGHT_RED
+                                Multiplier.DOUBLE_WORD -> YELLOW
+                                Multiplier.TRIPLE_LETTER -> BRIGHT_MAGENTA
+                                Multiplier.DOUBLE_LETTER -> BRIGHT_BLUE
+                                Multiplier.NONE -> ""
+                            }) + "·" + RESET) + " " }.joinToString("") +
                     "| " + index,
                     screenLength
                 )
@@ -74,8 +103,20 @@ class TextOut : ViewOutput {
     }
 
     private fun centerString(text: String, length: Int, character: Char = ' '): String {
-        if (length < text.length) throw IllegalArgumentException("Length of $length is less than length of \"$text\"")
-        val padding = (length - text.length) / 2
-        return character.toString().repeat(padding) + text + character.toString().repeat(length - text.length - padding)
+        val textLength = getVisibleStringLength(text)
+        if (length < textLength) throw IllegalArgumentException("Length of $length is less than length of \"$text\"")
+        val padding = (length - textLength) / 2
+        return character.toString().repeat(padding) + text + character.toString().repeat(length - textLength - padding)
+    }
+
+    private fun getVisibleStringLength(input: String): Int {
+        // Regex to match ANSI escape codes
+        val ansiEscapeRegex = "\\u001B\\[[;\\d]*m".toRegex()
+
+        // Remove ANSI escape sequences
+        val cleanString = input.replace(ansiEscapeRegex, "")
+
+        // Return the visible length of the string
+        return cleanString.length
     }
 }

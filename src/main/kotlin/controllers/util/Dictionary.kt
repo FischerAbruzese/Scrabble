@@ -1,17 +1,20 @@
 package controllers.util
 
-import java.util.Scanner
+import java.util.*
 
-class Dictionary(filePath: String) {
-    private val words: HashSet<String> = HashSet<String>()
+class Dictionary() {
+    companion object {
+        private const val FILEPATH = "src/main/kotlin/resources/dictionary.csv"
+        val words: HashSet<String> = HashSet<String>()
 
-    init{
-        val dictionary = Scanner(java.io.File(filePath))
-        while (dictionary.hasNextLine()) {
-            val word = dictionary.nextLine()
-            words.add(word)
+        init {
+            val dictionary = Scanner(java.io.File(FILEPATH))
+            while (dictionary.hasNextLine()) {
+                val word = dictionary.nextLine()
+                words.add(word)
+            }
         }
-    }
 
-    fun contains(word: String): Boolean = words.contains(word)
+        fun contains(word: String): Boolean = words.contains(word)
+    }
 }

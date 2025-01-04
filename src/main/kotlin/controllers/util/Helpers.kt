@@ -6,8 +6,9 @@ import models.turn.Direction.ACROSS
 import models.turn.Direction.DOWN
 import java.util.*
 
+
 fun String.isValidScrabbleWord(): Boolean {
-    return true //todo
+    return Dictionary.contains(this)
 }
 
 fun Direction.perpendicular(): Direction {

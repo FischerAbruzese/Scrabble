@@ -1,7 +1,5 @@
 package controllers
 
-import controllers.util.Dictionary
-import exceptions.InvalidWordException
 import controllers.util.parsePieceFile
 import models.GameState
 import models.Player
@@ -18,7 +16,6 @@ import views.TextOut
 class GameController {
     private lateinit var game: GameState
     private var out: TextOut = TextOut()
-    private val dict: Dictionary = Dictionary("src/main/kotlin/resources/dictionary.csv")
 
     constructor(gameState: GameState) {
         this.game = gameState

@@ -133,8 +133,12 @@ class Board(val board: Array<Array<Square>>) {
                 if (!isValidCoordinate(currentLocation)) {
                     throw IllegalMoveException("Move is out of bounds")
                 }
-
                 placedSquares.add(currentLocation)
+                currentLocation = when (move.direction) {
+                    Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
+                    Direction.DOWN -> Coord(currentLocation.x, currentLocation.y + 1)
+                    Direction.NONE -> currentLocation
+                }
             }
 
             var totalScore = 0

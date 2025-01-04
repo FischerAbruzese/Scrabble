@@ -11,11 +11,14 @@ import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
 import views.TextIn
-import views.TextOut
+import views.ViewOutput
+import views.WebOut
+
+//import views.WebOut
 
 class GameController {
     private var game: GameState
-    private var out: TextOut = TextOut()
+    private var out: ViewOutput = WebOut()
 
     constructor(gameState: GameState) {
         this.game = gameState
@@ -66,7 +69,7 @@ class GameController {
                 game.currentPlayer().run {
                     score += playMove(turn)
                     val pulled = hand.usePieces(game.bag, turn.pieces)
-                    playerController.pushMessage("Used ${turn.pieces.map{it.letter}} pieces, pulled ${pulled.map{it.letter}}")
+                    playerController.pushMessage("Used ${turn.pieces.map { it.letter }} pieces, pulled ${pulled.map { it.letter }}")
                 }
             }
 

@@ -4,17 +4,17 @@ import controllers.util.appendLn
 import models.GameState
 
 class TextOut : ViewOutput {
-    fun push(gameState: GameState) {
+    override fun push(game: GameState) {
         println("\n".repeat(2))
-        println(generateGameInfo(gameState))
-        println(generateBoardFrame(gameState))
-        generatePlayerInfo(gameState).forEach { print(it) }
+        println(generateGameInfo(game))
+        println(generateBoardFrame(game))
+        generatePlayerInfo(game).forEach { print(it) }
     }
 
     private fun generateGameInfo(gameState: GameState): String {
         val gameInfo = StringBuilder()
         gameInfo.appendLn("Turn: ${gameState.turnNum} | Pass Streak: ${gameState.passStreak}")
-        gameInfo.appendLn("Bag(${gameState.bag.size()}): ${gameState.bag.pieces.joinToString(separator = ""){it.letter.toString()}}")
+        gameInfo.appendLn("Bag(${gameState.bag.size()}): ${gameState.bag.pieces.joinToString(separator = "") { it.letter.toString() }}")
         return gameInfo.toString()
     }
 
@@ -42,10 +42,11 @@ class TextOut : ViewOutput {
         //Board
         for ((index, row) in gameState.board.board.withIndex()) {
             screen.appendLn(
-                centerString("" +
-                    index + " |" +
-                        row.map { " " + (it.piece?.letter ?: "·") + " " }.joinToString("") +
-                    "| " + index,
+                centerString(
+                    "" +
+                            index + " |" +
+                            row.map { " " + (it.piece?.letter ?: "·") + " " }.joinToString("") +
+                            "| " + index,
                     screenLength
                 )
             )

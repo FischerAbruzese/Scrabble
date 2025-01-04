@@ -4,15 +4,11 @@ package views
 import controllers.players.PlayerController
 import exceptions.BoardPieceNotUsedException
 import exceptions.IllegalMoveException
-import models.turn.Direction
 import models.GameState
 import models.Player
 import models.board.Coord
 import models.tiles.Piece
-import models.turn.Exchange
-import models.turn.Move
-import models.turn.Pass
-import models.turn.Turn
+import models.turn.*
 import kotlin.system.exitProcess
 
 class TextIn : PlayerController {
@@ -43,7 +39,7 @@ class TextIn : PlayerController {
         while (true) {
             ask("${playerName}, what would you like to do? (M)ove, (E)xchange, (P)ass, (Q)uit?")
             var input = readLine()
-            input = input?.toUpperCase()?.first().toString()
+            input = input?.uppercase()?.first().toString()
             if (input == "M" || input == "E" || input == "P" || input == "Q") return input
             else printError("Invalid input: $input")
         }
@@ -54,16 +50,16 @@ class TextIn : PlayerController {
             ask("Which pieces would you like to exchange? (format ex: AA_B)")
             var input = readLine()
             input = input?.trim()?.uppercase()
-            if(input == null){
+            if (input == null) {
                 printError("Invalid input: $input")
                 continue
             }
-            if(input!!.length > gameState.bag.size()){
+            if (input!!.length > gameState.bag.size()) {
                 printError("Not enough pieces left in the bag")
                 continue
             }
             val piecesToRemove = player.hand.containsPieces(input!!.toCharArray().toList())
-            if(piecesToRemove == null)
+            if (piecesToRemove == null)
                 printError("You do not have the required pieces to exchange.")
             else {
                 return Exchange(piecesToRemove)
@@ -72,7 +68,7 @@ class TextIn : PlayerController {
     }
 
     private fun queryMove(gameState: GameState, player: Player): Turn {
-        while(true) {
+        while (true) {
             //Tiles
             var tiles: List<Piece>? = null
             while (tiles == null) {
@@ -91,8 +87,8 @@ class TextIn : PlayerController {
             }
 
             //Blank pieces
-            var blankPieces = tiles.filter{it.letter == '_'}
-            while(blankPieces.isNotEmpty()){
+            var blankPieces = tiles.filter { it.letter == '_' }
+            while (blankPieces.isNotEmpty()) {
                 ask("You have ${blankPieces.size} blank pieces. What letters do you want to fill them in with? Order matters. (format ex for 2 blank pieces: AB")
                 var input = readLine()
                 input = input?.trim()?.uppercase()
@@ -104,18 +100,18 @@ class TextIn : PlayerController {
                 }
 
                 //Length error check
-                if (input.length != blankPieces.size){
+                if (input.length != blankPieces.size) {
                     printError("You entered ${input.length} letters but have ${blankPieces.size} blank pieces to fill.")
                     continue
                 }
 
                 //Valid letter check
-                if(input.any{it !in 'A'..'Z'}){
+                if (input.any { it !in 'A'..'Z' }) {
                     printError("All letters must be alphabetical.")
                     continue
                 }
 
-                for((index, tile) in blankPieces.withIndex()){
+                for ((index, tile) in blankPieces.withIndex()) {
                     tile.letter = input[index]
                 }
                 blankPieces = listOf()
@@ -142,36 +138,42 @@ class TextIn : PlayerController {
                     printError("Invalid input: $input")
                     continue
                 }
-                coord = Coord(x = coords[1], y= coords[0])
+                coord = Coord(x = coords[1], y = coords[0])
             }
 
             //Direction
             var direction: Direction? = null
-            if(tiles.size == 1) direction = Direction.NONE
-            while (direction == null){
+            if (tiles.size == 1) direction = Direction.NONE
+            while (direction == null) {
                 ask("What direction would you like to place the pieces? (D)own, (A)cross")
                 var input = readLine()
-                input = input?.toUpperCase()?.first().toString()
-                if(input == "D") direction = Direction.DOWN
-                else if(input == "A") direction = Direction.ACROSS
+                input = input?.uppercase()?.first().toString()
+                if (input == "D") direction = Direction.DOWN
+                else if (input == "A") direction = Direction.ACROSS
                 else printError("Invalid input: $input")
             }
 
             try {
                 val move = Move(coord, direction, tiles)
                 val findMove = gameState.board.findMove(move) //check if move is valid
-                val center = (gameState.board.size())/2
-                if(gameState.turnNum == 0 && !findMove.first.contains(Coord(center, center))) //Check if the first move contains the center square
+                val center = (gameState.board.size()) / 2
+                if (gameState.turnNum == 0 && !findMove.first.contains(
+                        Coord(
+                            center,
+                            center
+                        )
+                    )
+                ) //Check if the first move contains the center square
                     throw IllegalMoveException("First move must contain the center square $center,$center")
 
                 return Move(coord, direction, tiles)
-            } catch (e: BoardPieceNotUsedException){
-                if(gameState.turnNum == 0){
-                    val center = (gameState.board.size())/2
+            } catch (e: BoardPieceNotUsedException) {
+                if (gameState.turnNum == 0) {
+                    val center = (gameState.board.size()) / 2
                     printError("First move must contain the center square $center,$center")
                 } else
                     printError(e.message)
-            } catch (e: IllegalMoveException){
+            } catch (e: IllegalMoveException) {
                 printError(e.message)
             }
         }
@@ -179,14 +181,14 @@ class TextIn : PlayerController {
     }
 
     private fun printError(message: String?) {
-        message?.let{println(RED + message + RESET)} ?: println(RED + "Unknown error" + RESET)
+        message?.let { println(RED + message + RESET) } ?: println(RED + "Unknown error" + RESET)
     }
 
     private fun ask(message: String) {
         println(YELLOW + message + RESET)
     }
 
-    override fun pushMessage(message: String){ //TODO: Move to personalized output
+    override fun pushMessage(message: String) { //TODO: Move to personalized output
         println(CYAN + message + RESET)
     }
 }

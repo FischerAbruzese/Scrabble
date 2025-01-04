@@ -1,5 +1,8 @@
 package models.tiles
 
+import exceptions.NotEnoughPiecesException
+import kotlin.jvm.Throws
+
 class Hand(piecesInit: List<Piece>) {
     var pieces = piecesInit.toMutableList()
 
@@ -7,40 +10,52 @@ class Hand(piecesInit: List<Piece>) {
 
     fun size() = pieces.size
 
-    fun addAll(piecesToAdd: List<Piece>) = pieces.addAll(piecesToAdd)
+//    fun addAll(piecesToAdd: List<Piece>) = pieces.addAll(piecesToAdd)
 
-    /**
-     * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
-     */
-    @JvmName("removePieces1")
-    fun removePieces(piecesToRemove: List<Piece>): List<Piece>? {
-        if (!containsPieces(piecesToRemove)) return null
-        pieces.removeAll(piecesToRemove)
-        return piecesToRemove
-    }
+//    /**
+//     * Removes a list of pieces from the hand if all the pieces are in the hand
+//     *
+//     * @return true if all pieces were removed, false if nothing was done
+//     */
+//    @JvmName("removePieces1")
+//    fun removePieces(piecesToRemove: List<Piece>): Boolean {
+//        if (!containsPieces(piecesToRemove)) return false
+//        pieces.removeAll(piecesToRemove)
+//        return true
+//    }
 
     /**
      * Checks if every element of a list of pieces is in the hand
+     *
+     * @return List of matched pieces
      */
     @JvmName("containsPieces1")
-    fun containsPieces(piecesToCheck: List<Piece>): Boolean = pieces.containsAll(piecesToCheck)
-
-    /**
-     * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
-     */
-    @JvmName("removePieces2")
-    fun removePieces(piecesToRemove: List<Char>): List<Piece>? {
-        val matchChars = matchChars(piecesToRemove) ?: return null
-        pieces = matchChars.second.toMutableList()
-        return matchChars.first
+    fun containsPieces(piecesToCheck: List<Piece>): List<Piece>?{
+        if(pieces.containsAll(piecesToCheck))
+            return piecesToCheck
+        return null
     }
+
+//    /**
+//     * Removes a list of pieces from the hand if all the pieces are in the hand
+//     *
+//     * @return true if all pieces were removed, false if nothing was done
+//     */
+//    @JvmName("removePieces2")
+//    fun removePieces(piecesToRemove: List<Char>): Boolean {
+//        val matchChars = matchChars(piecesToRemove) ?: return false
+//        pieces = matchChars.second.toMutableList()
+//        return true
+//    }
 
     /**
      * Checks if every element of a list of pieces is in the hand
+     *
+     * @return List of matched pieces
      */
     @JvmName("containsPieces2")
-    fun containsPieces(piecesToCheck: List<Char>): Boolean {
-        return matchChars(piecesToCheck) != null
+    fun containsPieces(piecesToCheck: List<Char>): List<Piece>? {
+        return matchChars(piecesToCheck)?.first
     }
 
     /**
@@ -65,4 +80,26 @@ class Hand(piecesInit: List<Piece>) {
     }
 
     fun isEmpty(): Boolean = pieces.isEmpty()
+
+    /**
+     * Exchanges a list of pieces from the bag
+     *
+     * Requires all of [piecesToExchange] to be in the bag
+     */
+    @Throws(NotEnoughPiecesException::class)
+    fun exchangePieces(bag: Bag, piecesToExchange: List<Piece>){
+        val pulled = bag.exchange(piecesToExchange)
+        pieces.removeAll(piecesToExchange)
+        pieces.addAll(pulled)
+    }
+
+    /**
+     * Replaces a list of pieces with pieces from the bag
+     *
+     * Requires all of [piecesToUse] to be in the hand
+     */
+    fun usePieces(bag: Bag, piecesToUse: List<Piece>){
+        pieces.removeAll(piecesToUse)
+        pieces.addAll(bag.draw(piecesToUse.size))
+    }
 }

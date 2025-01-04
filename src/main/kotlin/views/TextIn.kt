@@ -53,10 +53,12 @@ class TextIn : ViewInput, PlayerController {
                 println("Not enough pieces left in the bag")
                 continue
             }
-            val removedPieces = player.hand.removePieces(input!!.toCharArray().toList())
-            if(removedPieces == null)
+            val piecesToRemove = player.hand.containsPieces(input!!.toCharArray().toList())
+            if(piecesToRemove == null)
                 println("You do not have the required pieces to exchange.")
-            else return Exchange(removedPieces)
+            else {
+                return Exchange(piecesToRemove)
+            }
         }
     }
 
@@ -72,11 +74,11 @@ class TextIn : ViewInput, PlayerController {
                     println("Invalid input: $input")
                     continue
                 }
-                val removedPieces = player.hand.removePieces(input!!.toCharArray().toList())
-                if (removedPieces == null) {
+                val piecesToRemove = player.hand.containsPieces(input!!.toCharArray().toList())
+                if (piecesToRemove == null) {
                     println("You do not have the required pieces to play that.")
                     continue
-                } else tiles = removedPieces
+                } else tiles = piecesToRemove
             }
 
             //Coordinates
@@ -121,11 +123,9 @@ class TextIn : ViewInput, PlayerController {
                 val center = (gameState.board.size())/2
                 if(gameState.turnNum == 0 && !findMove.first.contains(Coord(center, center))) //Check if the first move contains the center square
                     throw IllegalMoveException("First move must contain the center square $center,$center")
-                player.hand.addAll(gameState.bag.draw(tiles.size)) //draw from bag
 
                 return Move(coord, direction, tiles)
-            } catch (e: Exception){
-                player.hand.addAll(tiles)
+            } catch (e: IllegalMoveException){
                 println(e.message)
             }
         }

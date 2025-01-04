@@ -116,20 +116,8 @@ class Board(val board: Array<Array<Square>>) {
             for (piece in move.pieces) {
                 while (isValidCoordinate(currentLocation) && get(currentLocation).hasPiece()) {
                     val sq = get(currentLocation)
-                    placedWordScore += when (sq.multiplier) {
-                        Multiplier.NONE -> sq.piece!!.value
-                        Multiplier.DOUBLE_LETTER -> sq.piece!!.value * 2
-                        Multiplier.TRIPLE_LETTER -> sq.piece!!.value * 3
-                        Multiplier.DOUBLE_WORD -> {
-                            placedWordMultiplier *= 2
-                            sq.piece!!.value
-                        }
+                    placedWordScore += sq.piece!!.value
 
-                        Multiplier.TRIPLE_WORD -> {
-                            placedWordMultiplier *= 3
-                            sq.piece!!.value
-                        }
-                    }
                     currentLocation = when (move.direction) {
                         Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
                         Direction.DOWN -> Coord(currentLocation.x, currentLocation.y + 1)
@@ -139,7 +127,29 @@ class Board(val board: Array<Array<Square>>) {
                 if (!isValidCoordinate(currentLocation)) {
                     throw IllegalMoveException("Move is out of bounds")
                 }
+
+                set(
+                    currentLocation,
+                    Square(get(currentLocation).multiplier, piece, null, null)
+                )
                 placedSquares.add(currentLocation)
+                //update score
+                val sq = get(currentLocation)
+                placedWordScore += when (sq.multiplier) {
+                    Multiplier.NONE -> sq.piece!!.value
+                    Multiplier.DOUBLE_LETTER -> sq.piece!!.value * 2
+                    Multiplier.TRIPLE_LETTER -> sq.piece!!.value * 3
+                    Multiplier.DOUBLE_WORD -> {
+                        placedWordMultiplier *= 2
+                        sq.piece!!.value
+                    }
+
+                    Multiplier.TRIPLE_WORD -> {
+                        placedWordMultiplier *= 3
+                        sq.piece!!.value
+                    }
+                }
+
                 currentLocation = when (move.direction) {
                     Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
                     Direction.DOWN -> Coord(currentLocation.x, currentLocation.y + 1)
@@ -147,7 +157,7 @@ class Board(val board: Array<Array<Square>>) {
                 }
             }
 
-            var totalScore = 0
+            var totalScore = placedWordScore * placedWordMultiplier
 
             //validate move and score
             val placedWord = findWordAt(move.start, move.direction)

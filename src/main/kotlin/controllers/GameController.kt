@@ -1,6 +1,5 @@
 package controllers
 
-import exceptions.InvalidWordException
 import models.GameState
 import models.Player
 import models.board.Coord
@@ -73,11 +72,7 @@ class GameController {
     private fun makeTurn(turn: Turn) {
         when (turn) {
             is Move -> {
-                try {
-                    game.currentPlayer().score += playMove(turn)
-                } catch (ex: InvalidWordException) {
-                    game.currentPlayer()
-                }
+                game.currentPlayer().score += playMove(turn)
             }
 
             is Exchange -> {

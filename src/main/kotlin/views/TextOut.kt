@@ -24,7 +24,12 @@ class TextOut : ViewOutput {
         screen.appendLn(centerString("SCRABBLE", screenLength))
         screen.appendLn(centerString("*" + " - ".repeat(gameState.board.size()) + "*", screenLength))
         for (row in gameState.board.board) {
-            screen.appendLn(centerString("|" + row.map{" " + (it.piece?.letter?:" ") + " "}.joinToString("") + "|", screenLength))
+            screen.appendLn(
+                centerString(
+                    "|" + row.map { " " + (it.piece?.letter ?: "·") + " " }.joinToString("") + "|",
+                    screenLength
+                )
+            )
         }
         screen.appendLn(centerString("*" + " - ".repeat(gameState.board.size()) + "*", screenLength))
         return screen.toString()
@@ -34,7 +39,7 @@ class TextOut : ViewOutput {
         val players = ArrayList<String>()
         for (player in gameState.players) {
             val playerString = StringBuilder()
-            playerString.appendLn("Player: ${player.name} Score: ${player.score} Hand: ${player.hand.pieces.joinToString{it.letter.toString()}}")
+            playerString.appendLn("Player: ${player.name} Score: ${player.score} Hand: ${player.hand.pieces.joinToString { it.letter.toString() }}")
             players.add(playerString.toString())
         }
         return players

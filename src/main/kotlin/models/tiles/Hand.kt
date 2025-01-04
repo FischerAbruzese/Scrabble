@@ -28,8 +28,7 @@ class Hand(piecesInit: List<Piece>) {
      */
     @JvmName("removePieces2")
     fun removePieces(piecesToRemove: List<Char>): List<Piece>? {
-        val matchChars = matchChars(piecesToRemove)
-        if (matchChars == null) return null
+        val matchChars = matchChars(piecesToRemove) ?: return null
         pieces = matchChars.second.toMutableList()
         return matchChars.first
     }

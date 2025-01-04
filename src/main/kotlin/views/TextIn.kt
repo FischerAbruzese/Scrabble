@@ -114,7 +114,13 @@ class TextIn : ViewInput, PlayerController {
                 else println("Invalid input: $input")
             }
 
-            return Move(coord, direction, tiles)
+            try {
+                val move = Move(coord, direction, tiles)
+                gameState.board.findMove(move)
+                return Move(coord, direction, tiles)
+            } catch (e: Exception){
+                println(e.message)
+            }
         }
 
     }

@@ -42,7 +42,7 @@ class Board(val board: Array<Array<Square>>) {
     ): List<Piece> {
         val wordBuilder = LinkedList<Piece>()
         var currentCoord = startingCoord
-        while (this[currentCoord].hasPiece() && currentCoord.x < size() && currentCoord.y < size()) {
+        while (currentCoord.x < size() && currentCoord.y < size() && this[currentCoord].hasPiece()) {
             wordBuilder.add(this[currentCoord].piece!!)
             currentCoord = Coord(
                 currentCoord.x + if (direction == Direction.ACROSS) 1 else 0,
@@ -79,7 +79,7 @@ class Board(val board: Array<Array<Square>>) {
             coord.x - if (direction == Direction.ACROSS) 1 else 0,
             coord.y - if (direction == Direction.DOWN) 1 else 0
         )
-        while (this[nextCoord].hasPiece() && nextCoord.x > 0 && nextCoord.y > 0) {
+        while (nextCoord.x > 0 && nextCoord.y > 0 && this[nextCoord].hasPiece()) {
             currCord = nextCoord
             nextCoord = Coord(
                 coord.x - if (direction == Direction.ACROSS) 1 else 0,

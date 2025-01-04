@@ -162,8 +162,8 @@ class Board(val board: Array<Array<Square>>) {
             //validate move and score
             val placedWord = findWordAt(move.start, move.direction)
 
-            if (!placedWord.joinToString { it.letter.toString() }.isValidScrabbleWord()) {
-                throw IllegalMoveException("Invalid word: $placedWord")
+            if (!placedWord.joinToString("") { it.letter.toString() }.isValidScrabbleWord()) {
+                throw IllegalMoveException("Invalid word: ${placedWord.joinToString { it.letter.toString() }}")
             }
 
             //validate perpendicular moves
@@ -185,8 +185,8 @@ class Board(val board: Array<Array<Square>>) {
                 }
                 totalScore += (wordScore * wordMultiplier)
 
-                if (!word.joinToString { it.letter.toString() }.isValidScrabbleWord()) {
-                    throw IllegalMoveException("Invalid word: $word")
+                if (word.size > 1 && !word.joinToString("") { it.letter.toString() }.isValidScrabbleWord()) {
+                    throw IllegalMoveException("Invalid word: ${word.joinToString("") { it.letter.toString() }}")
                 }
             }
             return placedSquares to totalScore

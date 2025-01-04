@@ -18,7 +18,7 @@ import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration
 
-class WebOutput : ViewOutput {
+class WebOut : ViewOutput {
     private val connections = ConcurrentHashMap<String, WebSocketSession>()
     private val json = Json {
         prettyPrint = true
@@ -28,8 +28,8 @@ class WebOutput : ViewOutput {
 
     private val server = embeddedServer(Netty, port = 8080) {
         install(WebSockets) {
-            pingPeriod = Duration.parse("15 seconds")
-            timeout = Duration.parse("15 seconds")
+            pingPeriod = Duration.parse("15s")
+            timeout = Duration.parse("15s")
             maxFrameSize = Long.MAX_VALUE
             masking = false
         }

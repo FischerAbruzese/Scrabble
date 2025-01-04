@@ -11,7 +11,7 @@ import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
 import views.ViewOutput
-import views.WebOut
+import views.web.WebOut
 import views.text.TextIn
 
 //import views.WebOut

@@ -1,5 +1,6 @@
 package views.web
 
+import controllers.util.serializeGameState
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -10,7 +11,6 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import models.GameState
 import views.ViewOutput
@@ -69,7 +69,7 @@ class WebOut : ViewOutput {
 
     override fun push(game: GameState) {
         println("Pushing update to ${connections.size} clients")
-        val gameStateJson = json.encodeToString(game)
+        val gameStateJson = serializeGameState(game)
 
         connections.forEach { (id, session) ->
             CoroutineScope(Dispatchers.IO).launch {
@@ -80,6 +80,12 @@ class WebOut : ViewOutput {
                     println("Error sending game state to $id: ${e.message}")
                 }
             }
+        }
+    }
+
+    override fun waitForPlayers(playerCount: Int) {
+        while (connections.size < playerCount) {
+            Thread.sleep(1000)
         }
     }
 }

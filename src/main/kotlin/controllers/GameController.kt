@@ -11,8 +11,8 @@ import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
 import views.ViewOutput
-import views.web.WebOut
 import views.text.TextIn
+import views.web.WebOut
 
 //import views.WebOut
 
@@ -47,6 +47,10 @@ class GameController {
 
 
     fun startGame() {
+        println("Waiting for players...")
+        out.waitForPlayers(2)
+        println("Game starting!")
+
         while (!game.gameOver()) {
             out.push(game)
             nextMove()

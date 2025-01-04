@@ -10,6 +10,7 @@ class Hand(piecesInit: List<Piece>) {
     /**
      * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
      */
+    @JvmName("removePieces1")
     fun removePieces(piecesToRemove: List<Piece>): List<Piece>? {
         if (!containsPieces(piecesToRemove)) return null
         pieces.removeAll(piecesToRemove)
@@ -19,11 +20,13 @@ class Hand(piecesInit: List<Piece>) {
     /**
      * Checks if every element of a list of pieces is in the hand
      */
+    @JvmName("containsPieces1")
     fun containsPieces(piecesToCheck: List<Piece>): Boolean = pieces.containsAll(piecesToCheck)
 
     /**
      * Removes and returns a list of pieces from the hand if all the pieces are in the hand, otherwise null
      */
+    @JvmName("removePieces2")
     fun removePieces(piecesToRemove: List<Char>): List<Piece>? {
         val matchChars = matchChars(piecesToRemove)
         if (matchChars == null) return null
@@ -34,6 +37,7 @@ class Hand(piecesInit: List<Piece>) {
     /**
      * Checks if every element of a list of pieces is in the hand
      */
+    @JvmName("containsPieces2")
     fun containsPieces(piecesToCheck: List<Char>): Boolean {
         return matchChars(piecesToCheck) != null
     }

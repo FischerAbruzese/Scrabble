@@ -1,6 +1,5 @@
 package controllers
 
-import controllers.players.Human
 import exceptions.InvalidWordException
 import models.GameState
 import models.Player
@@ -12,10 +11,13 @@ import models.turn.Exchange
 import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
+import views.TextIn
+import views.TextOut
 import java.util.*
 
 class GameController {
     private lateinit var game: GameState
+    private var out: TextOut = TextOut()
 
     constructor(gameState: GameState) {
         this.game = gameState
@@ -23,17 +25,17 @@ class GameController {
 
     //this is where you change the default game type
     constructor() {
-        val bag = Bag(parsePieceFile("resources/characters.csv"))
+        val bag = Bag(parsePieceFile("src/main/kotlin/resources/characters.csv"))
 
         val players = listOf(
             Player(
                 "Player 1",
-                Human(),
+                TextIn(),
                 Hand(bag.draw(7))
             ),
             Player(
                 "Player 2",
-                Human(),
+                TextIn(),
                 Hand(bag.draw(7))
             )
         )
@@ -41,7 +43,7 @@ class GameController {
         this.game = GameState(players, bag)
     }
 
-    fun parsePieceFile(path: String): List<Piece> {
+    private fun parsePieceFile(path: String): List<Piece> {
         val pieces = mutableListOf<Piece>()
         val pieceFile = Scanner(java.io.File(path))
         while (pieceFile.hasNextLine()) {
@@ -54,6 +56,7 @@ class GameController {
 
     fun startGame() {
         while (!game.gameOver()) {
+            out.push(game)
             nextMove()
         }
     }

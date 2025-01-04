@@ -22,7 +22,7 @@ class TextOut : ViewOutput {
         screen.append("-".repeat(screenLength))
         screen.append(centerString("SCRABBLE", screenLength))
         screen.append("*" + "-".repeat(gameState.board.size()) + "*")
-        for(row in gameState.board.board) {
+        for (row in gameState.board.board) {
             print(centerString("|" + row.joinToString("") + "|", screenLength))
         }
         screen.append("*" + "-".repeat(gameState.board.size()) + "*")
@@ -31,7 +31,7 @@ class TextOut : ViewOutput {
 
     fun generatePlayerInfo(gameState: GameState): List<String>{
         val players = ArrayList<String>()
-        for(player in gameState.players){
+        for (player in gameState.players) {
             val playerString = StringBuilder()
             playerString.append("Player: ${player.name} Score: ${player.score} Hand: ${player.hand.pieces.joinToString("")}")
             players.add(playerString.toString())

@@ -1,4 +1,4 @@
-package views
+package views.text
 
 
 import controllers.players.PlayerController

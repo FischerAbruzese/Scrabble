@@ -10,9 +10,9 @@ import models.turn.Exchange
 import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
-import views.TextIn
 import views.ViewOutput
 import views.WebOut
+import views.text.TextIn
 
 //import views.WebOut
 

@@ -1,7 +1,8 @@
-package views
+package views.text
 
 import controllers.util.appendLn
 import models.GameState
+import views.ViewOutput
 
 class TextOut : ViewOutput {
     override fun push(game: GameState) {

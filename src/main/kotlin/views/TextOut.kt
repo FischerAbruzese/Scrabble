@@ -5,10 +5,10 @@ import models.GameState
 
 class TextOut : ViewOutput {
     fun push(gameState: GameState) {
-        println("\n".repeat(20))
+        println("\n".repeat(30))
         println(generateGameInfo(gameState))
         println(generateBoardFrame(gameState))
-        generatePlayerInfo(gameState).forEach { println(it) }
+        generatePlayerInfo(gameState).forEach { print(it) }
     }
 
     private fun generateGameInfo(gameState: GameState): String {
@@ -21,7 +21,11 @@ class TextOut : ViewOutput {
     private fun generateBoardFrame(gameState: GameState): String {
         val screen: StringBuilder = StringBuilder()
         val screenLength = 100
+
+        // Top border
         screen.appendLn("-".repeat(screenLength))
+
+        // Title
         screen.appendLn(centerString("SCRABBLE", screenLength))
 
 
@@ -52,6 +56,9 @@ class TextOut : ViewOutput {
 
         //Bottom numbers
         screen.appendLn(centerString("$columnNumbers", screenLength))
+
+        //Bottom border
+        screen.appendLn("-".repeat(screenLength))
 
         return screen.toString()
     }

@@ -81,7 +81,7 @@ class TextIn : ViewInput, PlayerController {
             //Coordinates
             var coord: Coord? = null
             while (coord == null) {
-                println("Where would you like to place those pieces? (format: row,col -- ex: 0,0)")
+                println("Where would you like to place those pieces? (format: row,col   ex: 0,0)")
                 var input = readLine()
                 input = input?.filter { it.isDigit() || it == ',' }
                 if (input == null) {
@@ -99,7 +99,7 @@ class TextIn : ViewInput, PlayerController {
                     println("Invalid input: $input")
                     continue
                 }
-                coord = Coord(coords[0], coords[1])
+                coord = Coord(x = coords[1], y= coords[0])
             }
 
             //Direction

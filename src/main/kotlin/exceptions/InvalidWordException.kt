@@ -1,3 +1,3 @@
 package exceptions
 
-class InvalidWordException(str: String? = null) : Exception(str)
+open class InvalidWordException(str: String? = null) : Exception(str)

@@ -2,6 +2,7 @@ package models.board
 
 import controllers.util.isValidScrabbleWord
 import controllers.util.perpendicular
+import exceptions.BoardPieceNotUsedException
 import exceptions.IllegalMoveException
 import exceptions.InvalidWordException
 import models.tiles.Piece
@@ -20,6 +21,10 @@ class Board(val board: Array<Array<Square>>) {
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size
         board.size % 2 == 1 //Board must be odd
+    }
+
+    fun center(): Coord {
+        return Coord(size() / 2, size() / 2)
     }
 
     operator fun get(coord: Coord) = board[coord.y][coord.x]
@@ -53,6 +58,7 @@ class Board(val board: Array<Array<Square>>) {
         return wordBuilder
     }
 
+    @Throws(InvalidWordException::class)
     fun findWordAt(coord: Coord, direction: Direction): List<Piece> {
         val beginningOfWord = findBeginningOfWord(
             coord,
@@ -67,7 +73,7 @@ class Board(val board: Array<Array<Square>>) {
         if (word.size != 1 &&
             !(word.map { it.letter }.joinToString("")).isValidScrabbleWord()
         ) {
-            throw InvalidWordException("${word.map { it.letter }.joinToString("")} is not in the dictionary: ")
+            throw InvalidWordException("${word.map { it.letter }.joinToString("")} is not in the dictionary")
         }
 
         if (word.size == 1) word = LinkedList<Piece>()
@@ -100,6 +106,7 @@ class Board(val board: Array<Array<Square>>) {
      * @return a pair of the list of coordinates and the score of the placed word
      * @throws IllegalMoveException if the move is illegal
      */
+    @Throws(IllegalMoveException::class)
     fun findMove(move: Move): Pair<List<Coord>, Int> {
         val boardClone = Board(board.map { it.clone() }.toTypedArray())
         boardClone.run {
@@ -114,10 +121,12 @@ class Board(val board: Array<Array<Square>>) {
             var placedWordMultiplier = 1
 
             //place all the tiles
+            var usesBoardPiece = false
             for (piece in move.pieces) {
                 while (isValidCoordinate(currentLocation) && get(currentLocation).hasPiece()) {
                     val sq = get(currentLocation)
                     placedWordScore += sq.piece!!.value
+                    usesBoardPiece = true
 
                     currentLocation = when (move.direction) {
                         Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
@@ -157,6 +166,7 @@ class Board(val board: Array<Array<Square>>) {
                     Direction.NONE -> currentLocation
                 }
             }
+            if (!usesBoardPiece && !placedSquares.contains(center())) throw BoardPieceNotUsedException("Move must use a board piece")
 
             var totalScore = placedWordScore * placedWordMultiplier
 

@@ -1,4 +1,4 @@
 package models.tiles
 
-data class Piece(val letter: Char, val value: Int) {
+data class Piece(var letter: Char, val value: Int) {
 }

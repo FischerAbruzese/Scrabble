@@ -93,6 +93,12 @@ class Board(val board: Array<Array<Square>>) {
         set(coord, Square(get(coord).multiplier, null, null, null))
     }
 
+    /**
+     * Attempts to place a word on the board
+     *
+     * @return a pair of the list of coordinates and the score of the placed word
+     * @throws IllegalMoveException if the move is illegal
+     */
     fun findMove(move: Move): Pair<List<Coord>, Int> {
         val boardClone = Board(board.map { it.clone() }.toTypedArray())
         boardClone.run {

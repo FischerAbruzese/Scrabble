@@ -121,6 +121,7 @@ class TextIn : ViewInput, PlayerController {
 
                 return Move(coord, direction, tiles)
             } catch (e: Exception){
+                player.hand.addAll(tiles)
                 println(e.message)
             }
         }

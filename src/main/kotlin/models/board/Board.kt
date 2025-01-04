@@ -53,24 +53,24 @@ class Board(val board: Array<Array<Square>>) {
     }
 
     fun findWordAt(coord: Coord, direction: Direction): List<Piece> {
-        val beginningOfPerpendicularWord = findBeginningOfWord(
+        val beginningOfWord = findBeginningOfWord(
             coord,
             direction
         )
 
-        var perpWord = readWord(
-            beginningOfPerpendicularWord,
+        var word = readWord(
+            beginningOfWord,
             direction,
         )
 
-        if (perpWord.size != 1 &&
-            !(perpWord.map { it.letter }.joinToString("")).isValidScrabbleWord()
+        if (word.size != 1 &&
+            !(word.map { it.letter }.joinToString("")).isValidScrabbleWord()
         ) {
-            throw InvalidWordException(perpWord.map { it.letter }.joinToString(""))
+            throw InvalidWordException("${word.map { it.letter }.joinToString("")} is not in the dictionary: ")
         }
 
-        if (perpWord.size == 1) perpWord = LinkedList<Piece>()
-        return perpWord
+        if (word.size == 1) word = LinkedList<Piece>()
+        return word
     }
 
     private fun findBeginningOfWord(coord: Coord, direction: Direction): Coord {

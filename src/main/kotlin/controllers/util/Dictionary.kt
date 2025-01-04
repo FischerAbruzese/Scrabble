@@ -11,10 +11,10 @@ class Dictionary() {
             val dictionary = Scanner(java.io.File(FILEPATH))
             while (dictionary.hasNextLine()) {
                 val word = dictionary.nextLine()
-                words.add(word)
+                words.add(word.lowercase())
             }
         }
 
-        fun contains(word: String): Boolean = words.contains(word)
+        fun contains(word: String): Boolean = words.contains(word.lowercase())
     }
 }

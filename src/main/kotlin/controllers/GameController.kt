@@ -1,18 +1,17 @@
 package controllers
 
+import controllers.util.parsePieceFile
 import models.GameState
 import models.Player
 import models.board.Coord
 import models.tiles.Bag
 import models.tiles.Hand
-import models.tiles.Piece
 import models.turn.Exchange
 import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
 import views.TextIn
 import views.TextOut
-import java.util.*
 
 class GameController {
     private lateinit var game: GameState
@@ -42,16 +41,6 @@ class GameController {
         this.game = GameState(players, bag)
     }
 
-    private fun parsePieceFile(path: String): List<Piece> {
-        val pieces = mutableListOf<Piece>()
-        val pieceFile = Scanner(java.io.File(path))
-        while (pieceFile.hasNextLine()) {
-            val line = pieceFile.nextLine().split(",")
-            val pieceToAdd = Piece(line[0][0], line[2].toInt())
-            repeat(line[1].toInt()) { pieces.add(pieceToAdd.copy()) }
-        }
-        return pieces
-    }
 
     fun startGame() {
         while (!game.gameOver()) {

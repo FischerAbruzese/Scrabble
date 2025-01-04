@@ -24,8 +24,9 @@ class Bag(pieces: List<Piece>) {
     }
 
     fun draw(n: Int): List<Piece> {
-        if (n > size()) throw NotEnoughPiecesException("Bag does not have enough pieces to draw")
-        return List(n) { nextPiece()!! }
+        var pickSize = n
+        if (pickSize > size()) pickSize = size()
+        return List(pickSize) { nextPiece()!! }
     }
 
     /**

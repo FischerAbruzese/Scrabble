@@ -36,8 +36,14 @@ class Bag(pieces: List<Piece>) {
         return pieces.lastOrNull()
     }
 
+    /**
+     * Draws a number of pieces from the bag equal to the number of exchanges and puts all the exchanges in the bag.
+     */
+    @Throws(NotEnoughPiecesException::class)
     fun exchange(exchanges: Collection<Piece>): List<Piece> {
         if (pieces.size > size()) throw NotEnoughPiecesException("Bag does not have enough pieces to exchange")
-        return List(exchanges.size) { nextPiece()!! }
+        val drawn = List(exchanges.size) { nextPiece()!! }
+        pieces.addAll(exchanges)
+        return drawn
     }
 }

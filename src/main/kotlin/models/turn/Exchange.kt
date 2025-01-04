@@ -6,10 +6,10 @@ data class Exchange(
     /**
      * Pieces to be traded in
      */
-    val exchange: List<Piece>
+    val exchangePieces: List<Piece>
 ) : Turn {
 
     fun classInv(): Boolean {
-        return exchange.size in 1..7
+        return exchangePieces.size in 1..7
     }
 }

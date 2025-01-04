@@ -61,11 +61,16 @@ class GameController {
     private fun makeTurn(turn: Turn) {
         when (turn) {
             is Move -> {
-                game.currentPlayer().score += playMove(turn)
+                game.passStreak = 0
+                game.currentPlayer().run{
+                    score += playMove(turn)
+                    hand.usePieces(game.bag, turn.pieces)
+                }
             }
 
             is Exchange -> {
                 game.passStreak = 0
+                game.currentPlayer().hand.exchangePieces(game.bag, turn.exchangePieces)
             }
 
             is Pass -> {

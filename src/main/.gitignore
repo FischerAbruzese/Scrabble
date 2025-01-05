@@ -1,7 +1,8 @@
-target/
+../../target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+src/main/target
 
 # Secrets
 server.properties

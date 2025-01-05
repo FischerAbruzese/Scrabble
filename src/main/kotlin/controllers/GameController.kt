@@ -31,9 +31,9 @@ class GameController {
         try {
             bag = Bag(parsePieceFile("kotlin/resources/characters.csv"))
         } catch (e: Exception) {
-            println(java.nio.file.Paths.get(".").toAbsolutePath().toString())
+            println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
             e.printStackTrace()//TODO: Remove
-            exitProcess(1)
+            exitProcess(2)
         }
 
         val players = listOf(

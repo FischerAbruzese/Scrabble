@@ -1,7 +1,7 @@
 FROM maven:3.9.9-amazoncorretto-23 AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean package
+RUN mvn clean package -DmainClass=MainKt
 
 FROM openjdk:23-jdk-slim
 WORKDIR /app

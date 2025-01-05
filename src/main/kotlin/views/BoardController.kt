@@ -3,7 +3,7 @@ package views
 import models.GameState
 import models.Player
 
-interface BoardOutput {
+interface BoardController {
     fun push(game: GameState)
 
     fun waitForPlayers(playerCount: Int) {

@@ -1,3 +1,7 @@
+import views.web.GameLobby
+
 fun main() {
-    Server().startServer()
+    val lobby = GameLobby()
+    // The following line will block until the server stops
+    Thread.currentThread().join()
 }

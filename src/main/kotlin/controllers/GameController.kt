@@ -10,6 +10,7 @@ import models.turn.Turn
 import util.parsePieceFile
 import views.BoardOutput
 import views.web.WebOut
+import java.io.File
 import kotlin.system.exitProcess
 
 //import views.WebOut
@@ -36,6 +37,18 @@ class GameController {
             bag = Bag(parsePieceFile("/kotlin/resources/characters.csv"))
         } catch (e: Exception) {
             println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
+            println("LS: " + File(".").listFiles())
+
+            val currentDirectory = File(".")
+            val files = currentDirectory.listFiles()
+            if (files != null) {
+                for (file in files) {
+                    if (file.isFile) {
+                        println("File name: " + file.name)
+                    }
+                }
+            }
+            println()
             e.printStackTrace()//TODO: Remove
             exitProcess(2)
         }

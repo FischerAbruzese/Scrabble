@@ -34,7 +34,7 @@ class GameController {
 
         val bag : Bag
         try {
-            bag = Bag(parsePieceFile("characters.csv"))
+            bag = Bag(parsePieceFile("resources/characters.csv"))
         } catch (e: Exception) {
             println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
             println("LS: " + File(".").listFiles().toList())

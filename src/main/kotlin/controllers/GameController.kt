@@ -37,7 +37,7 @@ class GameController {
             bag = Bag(parsePieceFile("/kotlin/resources/characters.csv"))
         } catch (e: Exception) {
             println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
-            println("LS: " + File(".").listFiles())
+            println("LS: " + File(".").listFiles().toList())
 
             val currentDirectory = File(".")
             val files = currentDirectory.listFiles()

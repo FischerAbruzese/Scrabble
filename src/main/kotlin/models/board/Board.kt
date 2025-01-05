@@ -41,9 +41,9 @@ class Board(val board: Array<Array<Square>>) {
 
         private fun isDoubleWordSquare(row: Int, col: Int): Boolean {
             // Diagonal positions from corners until before premium squares
-            return row == col || row == 14 - col && // Diagonal positions
+            return (row == col || row == 14 - col) && // Diagonal positions
                     row != 0 && row != 14 && // Exclude corners
-                    row < 5 || row > 9 // Only include positions before premium squares
+                    (row < 5 || row > 9) // Only include positions before premium squares
         }
 
         private fun isTripleLetterSquare(row: Int, col: Int): Boolean {

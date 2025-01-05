@@ -8,8 +8,8 @@ data class Player(
     val name: String = "Unnamed",
     /** The controller for this player */
     val playerController: PlayerController,
-    /** The hand for this player */
-    val hand: Hand,
+    /** The hand for this player | DO NOT SET THIS IT WILL DRAW TILES AUTOMATICALLY */
+    val hand: Hand = Hand(listOf()),
     /** The score for this player */
     var score: Int = 0
 ) {

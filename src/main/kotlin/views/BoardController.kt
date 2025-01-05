@@ -10,20 +10,7 @@ interface BoardController {
 
     }
 
-    fun getPlayers(): List<Player> {
-        return listOf(
-//            Player(
-//                "Mari",
-//                TextIn(),
-//                Hand(listOf())
-//            ),
-//            Player(
-//                "Sky",
-//                TextIn(),
-//                Hand(listOf())
-//            )
-        )
-    }
+    fun getPlayers(): List<Player>
 
     suspend fun closeAllConnections() {
 

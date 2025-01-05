@@ -44,6 +44,11 @@ class Bag(pieces: List<Piece>) {
         if (pieces.size > size()) throw NotEnoughPiecesException("Bag does not have enough pieces to exchange")
         val drawn = List(exchanges.size) { nextPiece()!! }
         pieces.addAll(exchanges)
+        pieces.shuffle()
         return drawn
+    }
+
+    override fun toString(): String {
+        return "${pieces.size} pieces left"
     }
 }

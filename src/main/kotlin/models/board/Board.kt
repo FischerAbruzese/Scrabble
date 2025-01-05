@@ -41,9 +41,9 @@ class Board(val board: Array<Array<Square>>) {
 
         private fun isDoubleWordSquare(row: Int, col: Int): Boolean {
             // Diagonal positions from corners until before premium squares
-            return row == col || row == 14 - col && // Diagonal positions
+            return (row == col || row == 14 - col) && // Diagonal positions
                     row != 0 && row != 14 && // Exclude corners
-                    row < 5 || row > 9 // Only include positions before premium squares
+                    (row < 5 || row > 9) // Only include positions before premium squares
         }
 
         private fun isTripleLetterSquare(row: Int, col: Int): Boolean {
@@ -72,7 +72,6 @@ class Board(val board: Array<Array<Square>>) {
         }
     }
 
-    //todo: Add multipliers
     constructor() : this(Array(15) { row ->
         Array(15) { col ->
             Square(getMultiplier(row, col))
@@ -88,7 +87,22 @@ class Board(val board: Array<Array<Square>>) {
         return Coord(size() / 2, size() / 2)
     }
 
+    /**
+     * Gets the square at the given coordinate
+     */
     operator fun get(coord: Coord) = board[coord.y][coord.x]
+
+    /**
+     * Gets the square at the given coordinate. Returns null if the coordinate is out of bounds
+     */
+    fun getOrNull(coord: Coord): Square? {
+        try{
+            return get(coord)
+        }
+        catch (e: Exception){
+            return null
+        }
+    }
 
     operator fun set(coord: Coord, square: Square) {
         board[coord.y][coord.x] = square
@@ -183,12 +197,12 @@ class Board(val board: Array<Array<Square>>) {
             var placedWordMultiplier = 1
 
             if (move.pieces.size == 1) {
-                //if there's a tile to the left, our word is across
-                if (get(Coord(currentLocation.x - 1, currentLocation.y)).hasPiece()) {
+                //if there's a tile to the left or right, our word is across
+                if (getOrNull(Coord(currentLocation.x - 1, currentLocation.y))?.hasPiece() == true || getOrNull(Coord(currentLocation.x + 1, currentLocation.y))?.hasPiece() == true) {
                     move = Move(move.start, Direction.ACROSS, move.pieces)
                 }
-                //if there's a tile above, our word is down
-                if (get(Coord(currentLocation.x, currentLocation.y - 1)).hasPiece()) {
+                //if there's a tile above or below, our word is down
+                if (getOrNull(Coord(currentLocation.x, currentLocation.y - 1))?.hasPiece() == true || getOrNull(Coord(currentLocation.x, currentLocation.y + 1))?.hasPiece() == true) {
                     move = Move(move.start, Direction.DOWN, move.pieces)
                 }
             }

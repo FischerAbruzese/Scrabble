@@ -11,9 +11,9 @@ import models.Player
 import models.tiles.Hand
 import util.serializeGameState
 import views.BoardController
-import views.InputReader
-import views.MessageOutput
-import views.text.TextIn
+import views.TextInterpreter
+import views.web.models.Connection
+import views.web.models.WebSocketMessage
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -26,7 +26,7 @@ class GameRoom(
     val gameId: String,
     private val json: Json,
     private val maxPlayers: Int = 4
-) : BoardController, InputReader, MessageOutput {
+) : BoardController, TextInterpreter() {
 
     // Thread-safe collections for managing game state
     private val connections = ConcurrentHashMap<String, Connection>()
@@ -129,7 +129,7 @@ class GameRoom(
         return connections.values.map { connection ->
             Player(
                 connection.playerName,
-                TextIn(this, this),
+                this,
                 Hand(listOf())
             )
         }
@@ -149,7 +149,7 @@ class GameRoom(
         }
     }
 
-    override fun showMessage(message: String, player: String) {
+    override fun sendMessage(message: String, player: String) {
         val systemMessage = WebSocketMessage.GameMessage(
             player = "System",
             content = message

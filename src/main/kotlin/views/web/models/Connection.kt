@@ -1,4 +1,4 @@
-package views.web
+package views.web.models
 
 import io.ktor.websocket.*
 

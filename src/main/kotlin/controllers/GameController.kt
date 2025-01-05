@@ -10,6 +10,7 @@ import models.turn.Pass
 import models.turn.Turn
 import util.parsePieceFile
 import views.BoardController
+import java.io.FileInputStream
 
 //import views.WebOut
 
@@ -25,7 +26,8 @@ class GameController {
     }
 
     fun startGame(numPlayers: Int, boardController: BoardController) {
-        val bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")!!))
+        val bag = Bag(parsePieceFile(FileInputStream("src/main/resources/characters.csv")))
+        //val bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")!!))
 
         val players = boardController.getPlayers()
         for (player in players) {

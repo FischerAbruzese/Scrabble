@@ -29,7 +29,7 @@ class GameController {
     constructor() {
         val bag : Bag
         try {
-            bag = Bag(parsePieceFile("kotlin/resources/characters.csv"))
+            bag = Bag(parsePieceFile("main/kotlin/resources/characters.csv"))
         } catch (e: Exception) {
             println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
             e.printStackTrace()//TODO: Remove

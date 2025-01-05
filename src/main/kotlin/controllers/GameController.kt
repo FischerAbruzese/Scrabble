@@ -26,7 +26,7 @@ class GameController {
 
     //this is where you change the default game type
     constructor() {
-        val bag = Bag(parsePieceFile("src/main/kotlin/resources/characters.csv"))
+        val bag = Bag(parsePieceFile("kotlin/resources/characters.csv"))
 
 
         val players = listOf(

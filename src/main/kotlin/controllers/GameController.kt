@@ -46,6 +46,12 @@ class GameController {
                     if (file.isFile) {
                         println("File name: " + file.name)
                     }
+                    val innerFiles = file.listFiles()
+                    if (innerFiles != null) {
+                        for (innerFile in innerFiles) {
+                            println("Inner file name: " + innerFile.name)
+                        }
+                    }
                 }
             }
             println()

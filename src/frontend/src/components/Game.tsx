@@ -67,7 +67,7 @@ export const Game = () => {
                     {/* Game console section */}
                     <div className="flex-grow bg-gray-800 p-4 flex flex-col">
                         <h2 className="text-xl font-semibold text-gray-100 mb-4">Game Console</h2>
-                        <div className="flex-grow bg-gray-900 rounded-lg p-4 flex flex-col">
+                        <div className="flex-grow bg-gray-900 rounded-lg p-1 flex flex-col">
                             <div className="flex-grow overflow-auto text-gray-100">
                                 <GameConsole
                                     playerName={playerName}

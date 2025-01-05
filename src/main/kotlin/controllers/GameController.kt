@@ -9,16 +9,12 @@ import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
 import util.parsePieceFile
-import views.BoardOutput
-import views.web.WebOut
-import java.io.File
-import kotlin.system.exitProcess
+import views.BoardController
 
 //import views.WebOut
 
 class GameController {
     private lateinit var game: GameState
-    private var out: BoardOutput = WebOut()
 
     constructor(gameState: GameState) {
         this.game = gameState
@@ -28,39 +24,10 @@ class GameController {
     constructor() {
     }
 
+    fun startGame(numPlayers: Int, boardController: BoardController) {
+        val bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")!!))
 
-    fun startGame() {
-        val bag: Bag
-        try {
-            bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")!!))
-        } catch (e: Exception) {
-            println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
-            println("LS: " + File(".").listFiles().toList())
-
-            val currentDirectory = File(".")
-            val files = currentDirectory.listFiles()
-            if (files != null) {
-                for (file in files) {
-                    if (file.isFile) {
-                        println("File name: " + file.name)
-                    }
-                    val innerFiles = file.listFiles()
-                    if (innerFiles != null) {
-                        for (innerFile in innerFiles) {
-                            println("Inner file name: " + innerFile.name)
-                        }
-                    }
-                }
-            }
-            println()
-            e.printStackTrace()//TODO: Remove
-            exitProcess(2)
-        }
-
-        println("Waiting for players...")
-        out.waitForPlayers(1)
-
-        val players = out.getPlayers()
+        val players = boardController.getPlayers()
         for (player in players) {
             player.hand.pieces.addAll(bag.draw(7))
         }
@@ -68,11 +35,11 @@ class GameController {
         println("Game starting!")
 
         while (!game.gameOver()) {
-            out.push(game)
+            boardController.push(game)
             nextMove()
         }
 
-        runBlocking { out.closeAllConnections() }
+        runBlocking { boardController.closeAllConnections() }
     }
 
     fun nextMove() {

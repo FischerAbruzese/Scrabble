@@ -22,6 +22,11 @@
     </repositories>
 
     <build>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+            </resource>
+        </resources>
         <sourceDirectory>kotlin</sourceDirectory>
         <!--        <testSourceDirectory>src/test/kotlin</testSourceDirectory>-->
         <plugins>

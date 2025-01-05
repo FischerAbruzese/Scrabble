@@ -4,11 +4,12 @@ import java.util.*
 
 class Dictionary() {
     companion object {
-        private const val FILEPATH = "resources/dictionary.csv"
+        private const val FILENAME = "dictionary.csv"
         val words: HashSet<String> = HashSet<String>()
 
         init {
-            val dictionary = Scanner(java.io.File(FILEPATH))
+            val inputStream = object {}.javaClass.getResourceAsStream(FILENAME)
+            val dictionary = Scanner(inputStream)
             while (dictionary.hasNextLine()) {
                 val word = dictionary.nextLine()
                 words.add(word.lowercase())

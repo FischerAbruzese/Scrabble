@@ -4,6 +4,7 @@ import models.tiles.Piece
 import models.turn.Direction
 import models.turn.Direction.ACROSS
 import models.turn.Direction.DOWN
+import java.io.InputStream
 import java.util.*
 
 
@@ -18,9 +19,9 @@ fun Direction.perpendicular(): Direction {
 
 fun StringBuilder.appendLn(text: String): java.lang.StringBuilder = append(text).append("\n")
 
-fun parsePieceFile(path: String): List<Piece> {
+fun parsePieceFile(inputStream: InputStream): List<Piece> {
     val pieces = mutableListOf<Piece>()
-    val pieceFile = Scanner(java.io.File(path))
+    val pieceFile = Scanner(inputStream)
     while (pieceFile.hasNextLine()) {
         val line = pieceFile.nextLine().split(",")
         val pieceToAdd = Piece(line[0][0], line[2].toInt())

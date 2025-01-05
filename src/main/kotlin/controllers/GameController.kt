@@ -31,7 +31,7 @@ class GameController {
     fun startGame() {
         val bag : Bag
         try {
-            bag = Bag(parsePieceFile("resources/characters.csv"))
+            bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")))
         } catch (e: Exception) {
             println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
             println("LS: " + File(".").listFiles().toList())

@@ -1,24 +1,21 @@
 package controllers
 
 import models.GameState
-import models.Player
 import models.board.Coord
 import models.tiles.Bag
-import models.tiles.Hand
 import models.turn.Exchange
 import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
 import util.parsePieceFile
-import views.ViewOutput
-import views.text.TextIn
+import views.BoardOutput
 import views.web.WebOut
 
 //import views.WebOut
 
 class GameController {
-    private var game: GameState
-    private var out: ViewOutput = WebOut()
+    private lateinit var game: GameState
+    private var out: BoardOutput = WebOut()
 
     constructor(gameState: GameState) {
         this.game = gameState
@@ -26,35 +23,26 @@ class GameController {
 
     //this is where you change the default game type
     constructor() {
-        val bag = Bag(parsePieceFile("src/main/kotlin/resources/characters.csv"))
-
-
-        val players = listOf(
-            Player(
-                "Mari",
-                TextIn(),
-                Hand(bag.draw(7))
-            ),
-            Player(
-                "Sky",
-                TextIn(),
-                Hand(bag.draw(7))
-            )
-        )
-
-        this.game = GameState(players, bag)
     }
 
 
     fun startGame() {
         println("Waiting for players...")
-        out.waitForPlayers(2)
+        out.waitForPlayers(1)
+
+        val bag = Bag(parsePieceFile("src/main/kotlin/resources/characters.csv"))
+        val players = out.getPlayers()
+        for (player in players) {
+            player.hand.pieces.addAll(bag.draw(7))
+        }
+        game = GameState(players, bag)
         println("Game starting!")
 
         while (!game.gameOver()) {
             out.push(game)
             nextMove()
         }
+
     }
 
     fun nextMove() {

@@ -6,19 +6,11 @@ import kotlinx.serialization.json.Json
 import models.GameState
 import models.board.Multiplier
 
-fun serializeGameState(gameState: GameState): String {
+fun serializeGameState(gameState: GameState, playerName: String): String {
     val game = SerializedGameState(
         gameState.players.map { player ->
             SerializedPlayer(
                 player.name,
-                SerializedHand(
-                    player.hand.pieces.map {
-                        SerializedPiece(
-                            it.letter,
-                            it.value
-                        )
-                    }
-                ),
                 player.score
             )
         },
@@ -32,14 +24,6 @@ fun serializeGameState(gameState: GameState): String {
                         s.playerPlaced?.let { player ->
                             SerializedPlayer(
                                 player.name,
-                                SerializedHand(
-                                    s.playerPlaced.hand.pieces.map {
-                                        SerializedPiece(
-                                            it.letter,
-                                            it.value
-                                        )
-                                    }
-                                ),
                                 s.playerPlaced.score
                             )
                         }
@@ -48,7 +32,12 @@ fun serializeGameState(gameState: GameState): String {
             }
         ),
         gameState.turnNum,
-        gameState.passStreak
+        gameState.passStreak,
+        SerializedHand(
+            gameState.players.find { it.name == playerName }!!.hand.pieces.map { piece ->
+                SerializedPiece(piece.letter, piece.value)
+            }
+        )
     )
 
     return Json.encodeToString(game)
@@ -60,13 +49,13 @@ data class SerializedGameState(
     val players: List<SerializedPlayer>,
     val board: SerializedBoard,
     val turnNum: Int,
-    val passStreak: Int
+    val passStreak: Int,
+    val yourHand: SerializedHand
 )
 
 @Serializable
 data class SerializedPlayer(
     val name: String,
-    val hand: SerializedHand,
     val score: Int
 )
 

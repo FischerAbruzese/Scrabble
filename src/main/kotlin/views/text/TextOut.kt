@@ -2,9 +2,9 @@ package views.text
 
 import models.GameState
 import util.appendLn
-import views.ViewOutput
+import views.BoardOutput
 
-class TextOut : ViewOutput {
+class TextOut : BoardOutput {
     override fun push(game: GameState) {
         println("\n".repeat(2))
         println(generateGameInfo(game))

@@ -1,12 +1,28 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {GameState} from "../types/GameState.ts";
+import {useEffect, useRef, useState} from 'react';
+import {GameState} from "../types/GameState";
+import {GameMessage, WebSocketMessage} from "../types/ConsoleMessages";
 
-export const useGameState = (playerName: string) => {
+interface UseGameStateReturn {
+    gameState: GameState | null;
+    error: string | null;
+    socket: WebSocket | null;
+    messages: Array<{
+        player: string;
+        content: string;
+        timestamp: string;
+    }>;
+}
+
+export const useGameState = (playerName: string): UseGameStateReturn => {
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [messages, setMessages] = useState<Array<{
+        player: string;
+        content: string;
+        timestamp: string;
+    }>>([]);
     const socketRef = useRef<WebSocket | null>(null);
 
-    // Only establish WebSocket connection when we have a playerName
     useEffect(() => {
         if (!playerName) {
             return;
@@ -16,7 +32,7 @@ export const useGameState = (playerName: string) => {
 
         ws.onopen = () => {
             console.log('Connected to game server');
-            const joinMessage = {
+            const joinMessage: WebSocketMessage = {
                 type: 'JOIN',
                 name: playerName
             };
@@ -27,10 +43,32 @@ export const useGameState = (playerName: string) => {
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
+
+                // Check if it's a message type we recognize
+                if ('type' in data) {
+                    switch (data.type) {
+                        case 'MESSAGE':
+                            const gameMessage = data as GameMessage;
+                            setMessages(prev => [...prev, {
+                                player: gameMessage.player,
+                                content: gameMessage.content,
+                                timestamp: new Date().toLocaleTimeString()
+                            }]);
+                            return;
+                        case 'JOIN':
+                            // Something is wrong if the server is sending you a join message lol
+                            return;
+                        case 'INPUT':
+                            // Something is wrong if the server is sending you a input message lol
+                            return;
+                    }
+                }
+
+                // If we get here, it's a game state update
                 setGameState(data);
             } catch (e) {
-                setError('Failed to parse game state');
-                console.error('Error parsing game state:', e);
+                setError('Failed to parse message');
+                console.error('Error parsing message:', e);
             }
         };
 
@@ -46,20 +84,15 @@ export const useGameState = (playerName: string) => {
 
         socketRef.current = ws;
 
-        // Cleanup on unmount or when playerName changes
         return () => {
             ws.close();
         };
-    }, [playerName]); // Only run when playerName changes
-
-    const getCurrentPlayerHand = useCallback(() => {
-        if (!gameState) return null;
-        return gameState.players.find(p => p.name === playerName)?.hand || null;
-    }, [gameState, playerName]);
+    }, [playerName]);
 
     return {
         gameState,
         error,
-        currentPlayerHand: getCurrentPlayerHand(),
+        socket: socketRef.current,
+        messages
     };
 };

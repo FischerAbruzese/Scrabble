@@ -4,11 +4,11 @@ export interface GameState {
     board: Board;
     turnNum: number;
     passStreak: number;
+    yourHand: Hand;
 }
 
 export interface Player {
     name: string;
-    hand: Hand;
     score: number;
 }
 

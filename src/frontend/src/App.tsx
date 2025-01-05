@@ -1,15 +1,10 @@
-// import React from 'react';
-import './App.css'
-
-import { GameBoard } from './components/GameBoard';
+import './App.css';
+import {Game} from './components/Game';
 
 function App() {
     return (
-        <div className="min-h-screen bg-gray-100">
-            <div className="container mx-auto py-8">
-                <h1 className="text-3xl font-bold mb-6">Game Board</h1>
-                <GameBoard />
-            </div>
+        <div className="w-screen h-screen bg-gray-900 text-gray-100">
+            <Game/>
         </div>
     );
 }

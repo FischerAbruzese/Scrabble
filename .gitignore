@@ -3,6 +3,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Secrets
+/server.properties
+!/server.properties.template
+
 # User-specific stuff:
 .idea/workspace.xml
 .idea/tasks.xml

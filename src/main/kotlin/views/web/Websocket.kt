@@ -36,7 +36,7 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
         ignoreUnknownKeys = true
     }
 
-    private val server = embeddedServer(Netty, port = 8080) {
+    private val server = embeddedServer(Netty, host = "0.0.0.0", port = 8080) {
         install(WebSockets) {
             pingPeriod = Duration.parse("15s")
             timeout = Duration.parse("15s")
@@ -45,9 +45,10 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
         }
 
         install(CORS) {
-            anyHost()
+            allowHost("scrabble-j2qi.onrender.com", schemes = listOf("https"))
             allowHeader("Content-Type")
         }
+
 
         routing {
             webSocket("/game-state") {

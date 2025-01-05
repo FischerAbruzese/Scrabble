@@ -10,6 +10,7 @@ import models.turn.Turn
 import util.parsePieceFile
 import views.BoardOutput
 import views.web.WebOut
+import kotlin.system.exitProcess
 
 //import views.WebOut
 
@@ -30,7 +31,14 @@ class GameController {
         println("Waiting for players...")
         out.waitForPlayers(1)
 
-        val bag = Bag(parsePieceFile("src/main/kotlin/resources/characters.csv"))
+        val bag : Bag
+        try {
+            bag = Bag(parsePieceFile("/kotlin/resources/characters.csv"))
+        } catch (e: Exception) {
+            println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
+            e.printStackTrace()//TODO: Remove
+            exitProcess(2)
+        }
         val players = out.getPlayers()
         for (player in players) {
             player.hand.pieces.addAll(bag.draw(7))

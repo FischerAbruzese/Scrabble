@@ -28,7 +28,8 @@ export const useGameState = (playerName: string): UseGameStateReturn => {
             return;
         }
 
-        const ws = new WebSocket('ws://localhost:8080/game-state');
+        const ws = new WebSocket('wss://scrabbledockerbackend.onrender.com/game-state');
+
 
         ws.onopen = () => {
             console.log('Connected to game server');

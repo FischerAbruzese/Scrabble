@@ -29,12 +29,9 @@ class GameController {
 
 
     fun startGame() {
-        println("Waiting for players...")
-        out.waitForPlayers(1)
-
         val bag : Bag
         try {
-            bag = Bag(parsePieceFile("characters.csv"))
+            bag = Bag(parsePieceFile("resources/characters.csv"))
         } catch (e: Exception) {
             println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
             println("LS: " + File(".").listFiles().toList())
@@ -58,6 +55,10 @@ class GameController {
             e.printStackTrace()//TODO: Remove
             exitProcess(2)
         }
+
+        println("Waiting for players...")
+        out.waitForPlayers(1)
+
         val players = out.getPlayers()
         for (player in players) {
             player.hand.pieces.addAll(bag.draw(7))

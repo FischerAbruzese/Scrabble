@@ -4,7 +4,7 @@ import java.util.*
 
 class Dictionary() {
     companion object {
-        private const val FILEPATH = "src/main/kotlin/resources/dictionary.csv"
+        private const val FILEPATH = "dictionary.csv"
         val words: HashSet<String> = HashSet<String>()
 
         init {

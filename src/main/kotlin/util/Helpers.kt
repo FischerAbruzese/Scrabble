@@ -1,4 +1,4 @@
-package controllers.util
+package util
 
 import models.tiles.Piece
 import models.turn.Direction

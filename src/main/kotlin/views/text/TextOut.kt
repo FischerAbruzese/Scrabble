@@ -1,7 +1,7 @@
 package views.text
 
-import controllers.util.appendLn
 import models.GameState
+import util.appendLn
 import views.ViewOutput
 
 class TextOut : ViewOutput {

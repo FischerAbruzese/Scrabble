@@ -1,4 +1,4 @@
-package controllers.util
+package util
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

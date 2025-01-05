@@ -1,6 +1,5 @@
 package views.web
 
-import controllers.util.serializeGameState
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -11,15 +10,28 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import models.GameState
+import models.Player
+import models.tiles.Hand
+import util.serializeGameState
 import views.ViewOutput
+import views.text.TextIn
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.time.Duration
 
+@Serializable
+data class JoinMessage(
+    val type: String,
+    val name: String
+)
+
 class WebOut : ViewOutput {
     private val connections = ConcurrentHashMap<String, WebSocketSession>()
+    private val playerNames = ConcurrentHashMap<String, String>() // Maps connectionId to player name
+
     private val json = Json {
         prettyPrint = true
         encodeDefaults = true
@@ -46,17 +58,38 @@ class WebOut : ViewOutput {
 
                 try {
                     connections[connectionId] = this
+
+                    var nameReceived = false
                     try {
                         for (frame in incoming) {
-                            // Keep connection alive
+                            when (frame) {
+                                is Frame.Text -> {
+                                    val receivedText = frame.readText()
+                                    try {
+                                        val message = json.decodeFromString<JoinMessage>(receivedText)
+                                        if (message.type == "JOIN" && !nameReceived) {
+                                            playerNames[connectionId] = message.name
+                                            nameReceived = true
+                                            println("Player ${message.name} joined with connection $connectionId")
+                                        }
+                                    } catch (e: Exception) {
+                                        println("Error processing message from $connectionId: ${e.message}")
+                                    }
+                                }
+
+                                else -> { /* Ignore other frame types */
+                                }
+                            }
                         }
                     } finally {
                         connections.remove(connectionId)
+                        playerNames.remove(connectionId)
                         println("Client disconnected: $connectionId")
                     }
                 } catch (e: Exception) {
                     println("Error in WebSocket connection: ${e.message}")
                     connections.remove(connectionId)
+                    playerNames.remove(connectionId)
                 }
             }
         }
@@ -84,8 +117,18 @@ class WebOut : ViewOutput {
     }
 
     override fun waitForPlayers(playerCount: Int) {
-        while (connections.size < playerCount) {
+        while (playerNames.size < playerCount) {
             Thread.sleep(1000)
+        }
+    }
+
+    fun getPlayers(): List<Player> {
+        return playerNames.values.map { name ->
+            Player(
+                name,
+                TextIn(),
+                Hand(listOf())
+            )
         }
     }
 }

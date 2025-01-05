@@ -1,13 +1,13 @@
 package models.board
 
-import controllers.util.isValidScrabbleWord
-import controllers.util.perpendicular
 import exceptions.BoardPieceNotUsedException
 import exceptions.IllegalMoveException
 import exceptions.InvalidWordException
 import models.tiles.Piece
 import models.turn.Direction
 import models.turn.Move
+import util.isValidScrabbleWord
+import util.perpendicular
 import java.util.*
 
 class Board(val board: Array<Array<Square>>) {

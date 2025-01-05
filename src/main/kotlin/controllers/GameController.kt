@@ -1,6 +1,5 @@
 package controllers
 
-import controllers.util.parsePieceFile
 import models.GameState
 import models.Player
 import models.board.Coord
@@ -10,6 +9,7 @@ import models.turn.Exchange
 import models.turn.Move
 import models.turn.Pass
 import models.turn.Turn
+import util.parsePieceFile
 import views.ViewOutput
 import views.text.TextIn
 import views.web.WebOut

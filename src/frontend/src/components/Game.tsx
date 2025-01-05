@@ -10,7 +10,7 @@ export const Game = () => {
     const [playerName, setPlayerName] = useState('');
     const [isNameSubmitted, setIsNameSubmitted] = useState(false);
 
-    const {gameState, error, socket, messages} = useGameState(
+    const {gameState, error, messages, sendMessage} = useGameState(
         isNameSubmitted ? playerName : ''
     );
 
@@ -71,8 +71,8 @@ export const Game = () => {
                             <div className="flex-grow overflow-auto text-gray-100">
                                 <GameConsole
                                     playerName={playerName}
-                                    socket={socket}
                                     messages={messages}
+                                    sendMessage={sendMessage}
                                 />
                             </div>
                         </div>

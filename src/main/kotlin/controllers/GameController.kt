@@ -1,5 +1,6 @@
 package controllers
 
+import kotlinx.coroutines.runBlocking
 import models.GameState
 import models.board.Coord
 import models.tiles.Bag
@@ -29,9 +30,9 @@ class GameController {
 
 
     fun startGame() {
-        val bag : Bag
+        val bag: Bag
         try {
-            bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")))
+            bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")!!))
         } catch (e: Exception) {
             println("PATH: " + java.nio.file.Paths.get(".").toAbsolutePath().toString())
             println("LS: " + File(".").listFiles().toList())
@@ -71,6 +72,7 @@ class GameController {
             nextMove()
         }
 
+        runBlocking { out.closeAllConnections() }
     }
 
     fun nextMove() {
@@ -89,7 +91,10 @@ class GameController {
                 game.currentPlayer().run {
                     score += playMove(turn)
                     val pulled = hand.usePieces(game.bag, turn.pieces)
-                    playerController.pushMessage("Used ${turn.pieces.map { it.letter }} pieces, pulled ${pulled.map { it.letter }}")
+                    playerController.pushMessage(
+                        "Used ${turn.pieces.map { it.letter }} pieces, pulled ${pulled.map { it.letter }}",
+                        game.currentPlayer().name
+                    )
                 }
             }
 
@@ -97,7 +102,10 @@ class GameController {
                 game.passStreak = 0
                 game.currentPlayer().run {
                     val pulled = hand.exchangePieces(game.bag, turn.exchangePieces)
-                    playerController.pushMessage("Exchanged ${turn.exchangePieces.map { it.letter }} pieces for ${pulled.map { it.letter }}")
+                    playerController.pushMessage(
+                        "Exchanged ${turn.exchangePieces.map { it.letter }} pieces for ${pulled.map { it.letter }}",
+                        game.currentPlayer().name
+                    )
                 }
             }
 

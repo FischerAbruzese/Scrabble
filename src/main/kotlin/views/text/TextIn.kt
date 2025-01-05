@@ -39,26 +39,26 @@ class TextIn(val input: InputReader, val output: MessageOutput) : PlayerControll
 
     private fun queryMoveType(playerName: String): String {
         while (true) {
-            ask("${playerName}, what would you like to do? (M)ove, (E)xchange, (P)ass, (Q)uit?")
+            ask("${playerName}, what would you like to do? (M)ove, (E)xchange, (P)ass, (Q)uit?", playerName)
             var input = getNextCommand(playerName)
             input = input.uppercase().first().toString()
             if (input == "M" || input == "E" || input == "P" || input == "Q") return input
-            else printError("Invalid input: $input")
+            else printError("Invalid input: $input", playerName)
         }
     }
 
     private fun queryExchange(gameState: GameState, player: Player): Turn {
         while (true) {
-            ask("Which pieces would you like to exchange? (format ex: AA_B)")
+            ask("Which pieces would you like to exchange? (format ex: AA_B)", player.name)
             var input = getNextCommand(player.name)
             input = input.trim().uppercase()
             if (input.length > gameState.bag.size()) {
-                printError("Not enough pieces left in the bag")
+                printError("Not enough pieces left in the bag", player.name)
                 continue
             }
             val piecesToRemove = player.hand.containsPieces(input.toCharArray().toList())
             if (piecesToRemove == null)
-                printError("You do not have the required pieces to exchange.")
+                printError("You do not have the required pieces to exchange.", player.name)
             else {
                 return Exchange(piecesToRemove)
             }
@@ -70,12 +70,15 @@ class TextIn(val input: InputReader, val output: MessageOutput) : PlayerControll
             //Tiles
             var tiles: List<Piece>? = null
             while (tiles == null) {
-                ask("Which pieces would you like to place(skip pieces already on the board but keep the same order as the word)? (format ex: SCRBLE if forming the word SCRABBLE and AB is already on the board)")
+                ask(
+                    "Which pieces would you like to place(skip pieces already on the board but keep the same order as the word)? (format ex: SCRBLE if forming the word SCRABBLE and AB is already on the board)",
+                    player.name
+                )
                 var input = getNextCommand(player.name)
                 input = input.trim().uppercase()
                 val piecesToRemove = player.hand.containsPieces(input.toCharArray().toList())
                 if (piecesToRemove == null) {
-                    printError("You do not have the required pieces to play that.")
+                    printError("You do not have the required pieces to play that.", player.name)
                     continue
                 } else tiles = piecesToRemove
             }
@@ -83,19 +86,25 @@ class TextIn(val input: InputReader, val output: MessageOutput) : PlayerControll
             //Blank pieces
             var blankPieces = tiles.filter { it.letter == '_' }
             while (blankPieces.isNotEmpty()) {
-                ask("You have ${blankPieces.size} blank pieces. What letters do you want to fill them in with? Order matters. (format ex for 2 blank pieces: AB")
+                ask(
+                    "You have ${blankPieces.size} blank pieces. What letters do you want to fill them in with? Order matters. (format ex for 2 blank pieces: AB",
+                    player.name
+                )
                 var input = getNextCommand(player.name)
                 input = input.trim().uppercase()
 
                 //Length error check
                 if (input.length != blankPieces.size) {
-                    printError("You entered ${input.length} letters but have ${blankPieces.size} blank pieces to fill.")
+                    printError(
+                        "You entered ${input.length} letters but have ${blankPieces.size} blank pieces to fill.",
+                        player.name
+                    )
                     continue
                 }
 
                 //Valid letter check
                 if (input.any { it !in 'A'..'Z' }) {
-                    printError("All letters must be alphabetical.")
+                    printError("All letters must be alphabetical.", player.name)
                     continue
                 }
 
@@ -108,18 +117,18 @@ class TextIn(val input: InputReader, val output: MessageOutput) : PlayerControll
             //Coordinates
             var coord: Coord? = null
             while (coord == null) {
-                ask("Where would you like to place those pieces? (format: row,col   ex: 0,0)")
+                ask("Where would you like to place those pieces? (format: row,col   ex: 0,0)", player.name)
                 var input = getNextCommand(player.name)
                 input = input.filter { it.isDigit() || it == ',' }
                 val coords: List<Int>
                 try {
                     coords = input.split(",").map { it.toInt() }
                 } catch (e: NumberFormatException) {
-                    printError("Invalid input: $input")
+                    printError("Invalid input: $input", player.name)
                     continue
                 }
                 if (coords.size != 2) {
-                    printError("Invalid input: $input")
+                    printError("Invalid input: $input", player.name)
                     continue
                 }
                 coord = Coord(x = coords[1], y = coords[0])
@@ -129,13 +138,13 @@ class TextIn(val input: InputReader, val output: MessageOutput) : PlayerControll
             var direction: Direction? = null
             if (tiles.size == 1) direction = Direction.NONE
             while (direction == null) {
-                ask("What direction would you like to place the pieces? (D)own, (A)cross")
+                ask("What direction would you like to place the pieces? (D)own, (A)cross", player.name)
                 var input = getNextCommand(player.name)
                 input = input.uppercase().first().toString()
                 when (input) {
                     "D" -> direction = Direction.DOWN
                     "A" -> direction = Direction.ACROSS
-                    else -> printError("Invalid input: $input")
+                    else -> printError("Invalid input: $input", player.name)
                 }
             }
 
@@ -156,11 +165,11 @@ class TextIn(val input: InputReader, val output: MessageOutput) : PlayerControll
             } catch (e: BoardPieceNotUsedException) {
                 if (gameState.turnNum == 0) {
                     val center = (gameState.board.size()) / 2
-                    printError("First move must contain the center square $center,$center")
+                    printError("First move must contain the center square $center,$center", player.name)
                 } else
-                    printError(e.message)
+                    printError(e.message, player.name)
             } catch (e: IllegalMoveException) {
-                printError(e.message)
+                printError(e.message, player.name)
             }
         }
 
@@ -168,17 +177,17 @@ class TextIn(val input: InputReader, val output: MessageOutput) : PlayerControll
 
     private fun getNextCommand(player: String) = input.getNextInput(player)
 
-    private fun sendMessage(message: String) = output.showMessage(message)
+    private fun sendMessage(message: String, player: String) = output.showMessage(message, player)
 
-    private fun printError(message: String?) {
-        message?.let { sendMessage(RED + message + RESET) } ?: sendMessage(RED + "Unknown error" + RESET)
+    private fun printError(message: String?, player: String) {
+        message?.let { sendMessage(message, player) } ?: sendMessage("Unknown error", player)
     }
 
-    private fun ask(message: String) {
-        sendMessage(YELLOW + message + RESET)
+    private fun ask(message: String, player: String) {
+        sendMessage(message, player)
     }
 
-    override fun pushMessage(message: String) { //TODO: Move to personalized output
-        sendMessage(CYAN + message + RESET)
+    override fun pushMessage(message: String, player: String) {
+        sendMessage(message, player)
     }
 }

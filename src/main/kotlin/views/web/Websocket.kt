@@ -36,7 +36,9 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
         ignoreUnknownKeys = true
     }
 
-    private val server = embeddedServer(Netty, host = "0.0.0.0", port = 8080) {
+    //private val server = embeddedServer(Netty, host = "0.0.0.0", port = 8080) {
+    private val server = embeddedServer(Netty, port = 8080) {
+
         install(WebSockets) {
             pingPeriod = Duration.parse("15s")
             timeout = Duration.parse("15s")
@@ -45,7 +47,8 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
         }
 
         install(CORS) {
-            allowHost("scrabble-j2qi.onrender.com", schemes = listOf("https"))
+            anyHost()
+//          allowHost("scrabble-j2qi.onrender.com", schemes = listOf("https"))
             allowHeader("Content-Type")
         }
 
@@ -76,13 +79,17 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
                                                 content = "${message.name} has joined the game"
                                             )
                                             broadcastMessage(joinAnnouncement)
+
+                                            lastGameState?.let {
+                                                connections[connectionId]?.let { session ->
+                                                    push(it, session, connectionId)
+                                                }
+                                            }
                                         }
 
                                         is WebSocketMessage.GameMessage -> {
                                             // Store message in queue for the recipient
                                             messageQueue[message.player]?.add(message.content)
-                                            // Broadcast message to all clients
-                                            broadcastMessage(message)
                                         }
 
                                         is WebSocketMessage.GameInput -> {
@@ -96,6 +103,7 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
                             }
 
                             else -> { /* Ignore other frame types */
+
                             }
                         }
                     }
@@ -122,8 +130,12 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
         }
     }
 
-    private fun broadcastMessage(message: WebSocketMessage.GameMessage) {
-        connections.forEach { (_, session) ->
+    private fun broadcastMessage(
+        message: WebSocketMessage.GameMessage,
+        players: List<String> = playerNames.values.toList()
+    ) {
+        for ((id, session) in connections) {
+            if (!players.contains(playerNames[id])) continue
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     session.send(Frame.Text(json.encodeToString(WebSocketMessage.GameMessage.serializer(), message)))
@@ -139,16 +151,23 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
         println("Server started - WebSocket endpoint at ws://localhost:8080/game-state")
     }
 
+
+    private var lastGameState: GameState? = null
     override fun push(game: GameState) {
+        lastGameState = game
         println("Pushing update to ${connections.size} clients")
         connections.forEach { (id, session) ->
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    session.send(Frame.Text(serializeGameState(game, playerNames[id]!!)))
-                    println("Sent update to client: ${playerNames[id]} ($id)")
-                } catch (e: Exception) {
-                    println("Error sending game state to $id: ${e.message}")
-                }
+            push(game, session, id)
+        }
+    }
+
+    fun push(game: GameState, connection: WebSocketSession, id: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                connection.send(Frame.Text(serializeGameState(game, playerNames[id]!!)))
+                println("Sent update to client: ${playerNames[id]} (${id})")
+            } catch (e: Exception) {
+                println("Error sending game state to ${id}: ${e.message}")
             }
         }
     }
@@ -171,17 +190,19 @@ class WebOut : BoardOutput, InputReader, MessageOutput {
 
     override fun getNextInput(player: String): String {
         while (true) {
-            inputQueue[player]?.poll()?.let { return it }
+            messageQueue[player]?.poll()?.let {
+                return it
+            }
             Thread.sleep(100)
         }
     }
 
-    override fun showMessage(message: String) {
+    override fun showMessage(message: String, player: String) {
         val systemMessage = WebSocketMessage.GameMessage(
             player = "System",
             content = message
         )
-        broadcastMessage(systemMessage)
+        broadcastMessage(systemMessage, listOf(player))
     }
 
     override suspend fun closeAllConnections() {

@@ -1,6 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {GameMessage} from '../types/ConsoleMessages';
-import {Clock, Send} from 'lucide-react';
+import {Send} from 'lucide-react';
 
 interface Message {
     player: string;
@@ -10,14 +9,14 @@ interface Message {
 
 interface GameConsoleProps {
     playerName: string;
-    socket: WebSocket | null;
     messages: Message[];
+    sendMessage: (content: string) => void;
 }
 
 const GameConsole: React.FC<GameConsoleProps> = ({
                                                      playerName,
-                                                     socket,
                                                      messages,
+                                                     sendMessage,
                                                  }) => {
     const [input, setInput] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -32,15 +31,9 @@ const GameConsole: React.FC<GameConsoleProps> = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!input.trim() || !socket) return;
+        if (!input.trim()) return;
 
-        const message: GameMessage = {
-            type: 'MESSAGE',
-            player: playerName,
-            content: input,
-        };
-
-        socket.send(JSON.stringify(message));
+        sendMessage(input);
         setInput('');
     };
 
@@ -51,34 +44,12 @@ const GameConsole: React.FC<GameConsoleProps> = ({
             {/* Messages container */}
             <div className="flex-grow overflow-y-auto mb-1 space-y-1 p-1">
                 {messages.map((msg, index) => (
-                    <div key={index} className="space-y-2 relative">
-                        {/* System message - full width */}
-                        {!isCurrentPlayer(msg.player) && (
-                            <div className="w-full bg-gray-800 rounded-lg p-4 shadow-lg">
-                                <div className="flex items-center justify-between mb-2">
-                                    <span className="text-gray-400 font-medium">{msg.player}</span>
-                                    <div className="flex items-center text-xs text-gray-500">
-                                        <Clock className="w-3 h-3 mr-1"/>
-                                        {msg.timestamp}
-                                    </div>
-                                </div>
-                                <p className="text-gray-100">{msg.content}</p>
-                            </div>
-                        )}
-
-                        {/* User message - small, right-aligned, on top of system message */}
-                        {isCurrentPlayer(msg.player) && (
-                            <div
-                                className="absolute bottom-0 right-0 text-right bg-gray-900 rounded-lg p-2 shadow-lg"
-                                style={{
-                                    maxWidth: 'auto', // Box size will fit content
-                                    whiteSpace: 'nowrap', // Prevent wrapping
-                                    zIndex: 10, // Ensure user message is on top
-                                }}
-                            >
-                                <p className="text-gray-100">{msg.content}</p>
-                            </div>
-                        )}
+                    <div key={index} className="w-full space-y-2">
+                        <div className={`w-full rounded-lg p-4 shadow-lg ${
+                            isCurrentPlayer(msg.player) ? 'bg-gray-700' : 'bg-gray-800'
+                        }`}>
+                            <p className="text-gray-100">{msg.content}</p>
+                        </div>
                     </div>
                 ))}
                 <div ref={messagesEndRef}/>

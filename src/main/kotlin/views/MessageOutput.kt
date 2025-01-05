@@ -1,5 +1,5 @@
 package views
 
 interface MessageOutput {
-    fun showMessage(message: String)
+    fun showMessage(message: String, player: String)
 }

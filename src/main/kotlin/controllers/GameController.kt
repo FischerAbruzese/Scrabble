@@ -13,6 +13,7 @@ import util.parsePieceFile
 import views.ViewOutput
 import views.text.TextIn
 import views.web.WebOut
+import kotlin.system.exitProcess
 
 //import views.WebOut
 
@@ -26,8 +27,14 @@ class GameController {
 
     //this is where you change the default game type
     constructor() {
-        val bag = Bag(parsePieceFile("kotlin/resources/characters.csv"))
-
+        val bag : Bag
+        try {
+            bag = Bag(parsePieceFile("kotlin/resources/characters.csv"))
+        } catch (e: Exception) {
+            println(java.nio.file.Paths.get(".").toAbsolutePath().toString())
+            e.printStackTrace()//TODO: Remove
+            exitProcess(1)
+        }
 
         val players = listOf(
             Player(

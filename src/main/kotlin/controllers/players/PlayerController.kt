@@ -6,5 +6,5 @@ import models.turn.Turn
 
 interface PlayerController {
     fun getTurn(gameState: GameState, player: Player): Turn
-    fun pushMessage(message: String, player: String) //TODO: Move to personalized output
+    fun pushMessage(message: String, player: String) {}
 }

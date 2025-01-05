@@ -10,7 +10,7 @@ import util.isValidScrabbleWord
 import util.perpendicular
 import java.util.*
 
-class Board(val board: Array<Array<Square>>) {
+class Board(val board: Array<Array<Square>>): Iterable<Square> {
     companion object {
         private val EMPTY_SQUARE = Square(Multiplier.NONE)
 
@@ -303,5 +303,9 @@ class Board(val board: Array<Array<Square>>) {
             }
             return placedSquares to totalScore
         }
+    }
+
+    override fun iterator(): Iterator<Square> {
+        return board.flatten().iterator()
     }
 }

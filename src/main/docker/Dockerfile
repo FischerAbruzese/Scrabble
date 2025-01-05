@@ -1,4 +1,4 @@
-FROM maven:3.9.3-openjdk-23 AS build
+FROM maven:3.9.9-amazoncorretto-23 AS build
 WORKDIR /app
 COPY . .
 RUN mvn clean package

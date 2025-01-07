@@ -26,8 +26,11 @@ class GameController {
     }
 
     fun startGame(numPlayers: Int, boardController: BoardController) {
-        val bag = Bag(parsePieceFile(FileInputStream("src/main/resources/characters.csv")))
-        //val bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")!!))
+
+        val bag = Bag(parsePieceFile(
+            this::class.java.classLoader.getResourceAsStream("characters.csv")
+                ?: FileInputStream("src/main/resources/characters.csv")
+        ))
 
         val players = boardController.getPlayers()
         for (player in players) {

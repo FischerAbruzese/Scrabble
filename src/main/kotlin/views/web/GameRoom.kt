@@ -62,7 +62,7 @@ class GameRoom(
     fun startGame(): Boolean {
         if (isGameStarted || connections.size < 1) return false
         gameController = GameController()
-        gameController.startGame(connections.size, this)
+        gameController.startGame(this)
         isGameStarted = true
         broadcastGameState()
         return true

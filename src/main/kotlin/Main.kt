@@ -18,7 +18,6 @@ fun startTextGame() {
     val sky = Player("Sky", ConsolePlayerController.INSTANCE)
     val mari = Player("Mari", ConsolePlayerController.INSTANCE)
     GameController().startGame(
-        2,
         ConsoleBoard(
             listOf(
                 //players

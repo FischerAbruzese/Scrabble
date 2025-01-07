@@ -12,7 +12,7 @@ import java.util.*
 
 class Board(val board: Array<Array<Square>>) {
     companion object {
-        private val EMPTY_SQUARE = Square(Multiplier.NONE)
+        //private val EMPTY_SQUARE = Square(Multiplier.NONE)
 
         private fun getMultiplier(row: Int, col: Int): Multiplier {
             // Center square
@@ -78,6 +78,7 @@ class Board(val board: Array<Array<Square>>) {
         }
     })
 
+    @Suppress("unused")
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size
                 && board.size % 2 == 1 //Board must be odd
@@ -182,6 +183,7 @@ class Board(val board: Array<Array<Square>>) {
      * @throws IllegalMoveException if the move is illegal
      */
     @Throws(IllegalMoveException::class)
+    @Suppress("shadowed")
     fun findMove(move: Move): Pair<List<Coord>, Int> {
         val boardClone = Board(board.map { it.clone() }.toTypedArray())
         boardClone.run {

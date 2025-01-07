@@ -266,8 +266,6 @@ class Board(val board: Array<Array<Square>>) {
                     Direction.NONE -> currentLocation
                 }
             }
-            if (!usesBoardPiece && !placedSquares.contains(center()))
-                throw BoardPieceNotUsedException("Move must use a board piece")
 
             var totalScore = placedWordScore * placedWordMultiplier
 
@@ -297,10 +295,16 @@ class Board(val board: Array<Array<Square>>) {
                 }
                 totalScore += (wordScore * wordMultiplier)
 
+                if(word.size > 1) usesBoardPiece = true
+
                 if (word.size > 1 && !word.joinToString("") { it.letter.toString() }.isValidScrabbleWord()) {
                     throw IllegalMoveException("Invalid word: ${word.joinToString("") { it.letter.toString() }}")
                 }
             }
+
+            if (!usesBoardPiece && !placedSquares.contains(center()))
+                throw BoardPieceNotUsedException("Move must use a board piece")
+
             return placedSquares to totalScore
         }
     }

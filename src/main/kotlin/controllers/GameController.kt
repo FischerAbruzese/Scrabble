@@ -2,7 +2,6 @@ package controllers
 
 import kotlinx.coroutines.runBlocking
 import models.GameState
-import models.board.Coord
 import models.tiles.Bag
 import models.turn.Exchange
 import models.turn.Move
@@ -25,9 +24,12 @@ class GameController {
     constructor() {
     }
 
-    fun startGame(numPlayers: Int, boardController: BoardController) {
-        val bag = Bag(parsePieceFile(FileInputStream("src/main/resources/characters.csv")))
-        //val bag = Bag(parsePieceFile(this::class.java.classLoader.getResourceAsStream("characters.csv")!!))
+    fun startGame(boardController: BoardController) {
+
+        val bag = Bag(parsePieceFile(
+            this::class.java.classLoader.getResourceAsStream("characters.csv")
+                ?: FileInputStream("src/main/resources/characters.csv")
+        ))
 
         val players = boardController.getPlayers()
         for (player in players) {
@@ -91,13 +93,5 @@ class GameController {
         val (placedSquares, totalScore) = game.board.findMove(move)
         placedSquares.zip(move.pieces).forEach { game.placePiece(it.first, it.second) }
         return totalScore
-    }
-
-    private var previousMove: List<Coord>? = null
-
-    private fun undoMove() {
-        for (coord in previousMove ?: throw IllegalArgumentException("No move to undo")) {
-            game.board.removePieceAt(coord)
-        }
     }
 }

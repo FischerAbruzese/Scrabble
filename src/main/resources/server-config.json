@@ -1,0 +1,6 @@
+{
+  "host": "localhost",
+  "port": 8080,
+  "isProduction": false,
+  "productionUrl": "https://scrabbledockerbackend.onrender.com"
+}

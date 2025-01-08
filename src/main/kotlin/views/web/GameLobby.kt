@@ -25,6 +25,7 @@ import kotlin.time.Duration
  */
 class GameLobby(
     private val port: Int = 8080,
+    private val host: String = "localhost",
     private val maxPlayersPerGame: Int = 4
 ) {
     // JSON serializer configuration
@@ -320,8 +321,8 @@ class GameLobby(
         server.start(wait = false)
         startCleanupScheduler()
         println("Game Lobby started:")
-        println("- Lobby WebSocket endpoint: ws://localhost:$port/lobby")
-        println("- Game WebSocket endpoint: ws://localhost:$port/game/{id}")
+        println("- Lobby WebSocket endpoint: ws://$host:$port/lobby")
+        println("- Game WebSocket endpoint: ws://$host:$port/game/{id}")
     }
 
     /**

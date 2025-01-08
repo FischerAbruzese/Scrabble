@@ -1,9 +1,11 @@
 package util
 
+import java.io.FileInputStream
+import java.io.InputStream
 import java.util.*
 import kotlin.util.Trie
 
-class Dictionary() {
+class Dictionary {
     companion object {
         private const val FILENAME = "dictionary.csv"
         val words: HashSet<String> = HashSet<String>()
@@ -11,7 +13,9 @@ class Dictionary() {
 
 
         init {
-            val inputStream = object {}.javaClass.getResourceAsStream(FILENAME)
+            val inputStream: InputStream = object {}.javaClass.getResourceAsStream(FILENAME)
+                ?: FileInputStream("src/main/resources/dictionary.csv")
+
             val dictionary = Scanner(inputStream)
             while (dictionary.hasNextLine()) {
                 val word = dictionary.nextLine()

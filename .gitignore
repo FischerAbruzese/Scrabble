@@ -48,3 +48,4 @@ build/
 ### Mac OS ###
 .DS_Store
 /target/
+/.idea/inspectionProfiles/Project_Default.xml

@@ -8,7 +8,7 @@ import views.web.GameLobby
 
 fun main(args: Array<String>) {
     when {
-        args.contains("--server") -> {
+        args.contains("--web") -> {
             val config = ServerConfig.load()
             val isProduction = args.contains("--prod")
 

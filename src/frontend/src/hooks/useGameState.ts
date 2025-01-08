@@ -13,6 +13,7 @@ interface UseGameStateReturn {
     sendMessage: (content: string) => void;
 }
 
+// useGameState.ts
 export const useGameState = (
     gameId: string | null,
     playerName: string
@@ -29,7 +30,8 @@ export const useGameState = (
     useEffect(() => {
         if (!gameId || !playerName) return;
 
-        const ws = new WebSocket(`ws://localhost:8080/game/${gameId}`);
+        const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+        const ws = new WebSocket(`${wsUrl}/game/${gameId}`);
 
         ws.onopen = () => {
             console.log('Connected to game room');

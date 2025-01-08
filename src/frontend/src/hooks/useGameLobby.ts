@@ -19,7 +19,8 @@ export const useGameLobby = (): UseLobbyReturn => {
     const socketRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
-        const ws = new WebSocket('ws://localhost:8080/lobby');
+        const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080';
+        const ws = new WebSocket(`${wsUrl}/lobby`);
 
         ws.onopen = () => {
             console.log('Connected to lobby');
@@ -34,7 +35,7 @@ export const useGameLobby = (): UseLobbyReturn => {
                         isStarted: data.isStarted
                     });
                 }
-            } catch (e) {
+            } catch {
                 setError('Failed to parse lobby message');
             }
         };

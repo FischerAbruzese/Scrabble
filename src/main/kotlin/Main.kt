@@ -4,12 +4,29 @@ import views.text.ConsoleBoard
 import views.text.ConsolePlayerController
 import views.web.GameLobby
 
-fun main() {
-    startTextGame()
+
+
+fun main(args: Array<String>) {
+    when {
+        args.contains("--server") -> {
+            val config = ServerConfig.load()
+            val isProduction = args.contains("--prod")
+
+            startWebGame(config.copy(isProduction = isProduction))
+        }
+        else -> startTextGame()
+    }
 }
 
-fun startWebGame() {
-    val lobby = GameLobby()
+fun startWebGame(config: ServerConfig) {
+    val host = if (config.isProduction) config.productionUrl else config.host
+    println("Starting server on $host:${config.port}")
+
+    val lobby = GameLobby(
+        port = config.port,
+        host = host
+    )
+
     // The following line will block until the server stops
     Thread.currentThread().join()
 }

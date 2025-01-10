@@ -8,6 +8,13 @@ class Hand(piecesInit: List<Piece>) {
 
     fun classInv(): Boolean = pieces.size in 0..7
 
+    /**
+     * Makes a shallow copy of the hand. Removing or adding pieces to the hand will not affect the copy but mutating pieces will
+     */
+    fun copy(): Hand = Hand(pieces.toMutableList())
+
+    fun deepCopy(): Hand = Hand(pieces.map { it.copy() }.toMutableList())
+
     fun size() = pieces.size
 
 //    fun addAll(piecesToAdd: List<Piece>) = pieces.addAll(piecesToAdd)
@@ -36,18 +43,6 @@ class Hand(piecesInit: List<Piece>) {
         return null
     }
 
-//    /**
-//     * Removes a list of pieces from the hand if all the pieces are in the hand
-//     *
-//     * @return true if all pieces were removed, false if nothing was done
-//     */
-//    @JvmName("removePieces2")
-//    fun removePieces(piecesToRemove: List<Char>): Boolean {
-//        val matchChars = matchChars(piecesToRemove) ?: return false
-//        pieces = matchChars.second.toMutableList()
-//        return true
-//    }
-
     /**
      * Checks if every element of a list of pieces is in the hand
      *
@@ -57,6 +52,11 @@ class Hand(piecesInit: List<Piece>) {
     fun containsPieces(piecesToCheck: List<Char>): List<Piece>? {
         return matchChars(piecesToCheck)?.first
     }
+
+    /**
+     * Returns the first index of the given character or -1 if not found
+     */
+    fun indexOf(char: Char): Int = pieces.indexOfFirst { it.letter == char }
 
     /**
      * Given a list of characters, attempts to find a separate out a matching list of pieces

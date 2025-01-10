@@ -9,7 +9,6 @@ class Dictionary {
     companion object {
         private const val FILENAME = "dictionary.csv"
         val words: HashSet<String> = HashSet<String>()
-        val wordsTrie: Trie = Trie()
 
 
         init {
@@ -20,7 +19,8 @@ class Dictionary {
             while (dictionary.hasNextLine()) {
                 val word = dictionary.nextLine()
                 words.add(word.lowercase())
-                wordsTrie.add(word.lowercase())
+
+
             }
         }
 

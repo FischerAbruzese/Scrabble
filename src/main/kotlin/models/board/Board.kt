@@ -10,7 +10,7 @@ import util.isValidScrabbleWord
 import util.perpendicular
 import java.util.*
 
-class Board(val board: Array<Array<Square>>): Iterable<Square> {
+class Board(private val board: Array<Array<Square>>): Iterable<Square> {
     companion object {
         //private val EMPTY_SQUARE = Square(Multiplier.NONE)
 
@@ -92,6 +92,9 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
      * Gets the square at the given coordinate
      */
     operator fun get(coord: Coord) = board[coord.y][coord.x]
+    operator fun get(row: Int) = board[row]
+
+    fun rows() = board
 
     /**
      * Gets the square at the given coordinate. Returns null if the coordinate is out of bounds

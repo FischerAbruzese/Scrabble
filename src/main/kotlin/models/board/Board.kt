@@ -10,9 +10,9 @@ import util.isValidScrabbleWord
 import util.perpendicular
 import java.util.*
 
-class Board(val board: Array<Array<Square>>) {
+class Board(val board: Array<Array<Square>>): Iterable<Square> {
     companion object {
-        //private val EMPTY_SQUARE = Square(Multiplier.NONE)
+        private val EMPTY_SQUARE = Square(Multiplier.NONE)
 
         private fun getMultiplier(row: Int, col: Int): Multiplier {
             // Center square
@@ -78,7 +78,6 @@ class Board(val board: Array<Array<Square>>) {
         }
     })
 
-    @Suppress("unused")
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size
                 && board.size % 2 == 1 //Board must be odd
@@ -92,6 +91,8 @@ class Board(val board: Array<Array<Square>>) {
      * Gets the square at the given coordinate
      */
     operator fun get(coord: Coord) = board[coord.y][coord.x]
+
+    fun rows() = board
 
     /**
      * Gets the square at the given coordinate. Returns null if the coordinate is out of bounds
@@ -183,7 +184,6 @@ class Board(val board: Array<Array<Square>>) {
      * @throws IllegalMoveException if the move is illegal
      */
     @Throws(IllegalMoveException::class)
-    @Suppress("shadowed")
     fun findMove(move: Move): Pair<List<Coord>, Int> {
         val boardClone = Board(board.map { it.clone() }.toTypedArray())
         boardClone.run {
@@ -268,6 +268,8 @@ class Board(val board: Array<Array<Square>>) {
                     Direction.NONE -> currentLocation
                 }
             }
+            if (!usesBoardPiece && !placedSquares.contains(center()))
+                throw BoardPieceNotUsedException("Move must use a board piece")
 
             var totalScore = placedWordScore * placedWordMultiplier
 
@@ -297,17 +299,15 @@ class Board(val board: Array<Array<Square>>) {
                 }
                 totalScore += (wordScore * wordMultiplier)
 
-                if(word.size > 1) usesBoardPiece = true
-
                 if (word.size > 1 && !word.joinToString("") { it.letter.toString() }.isValidScrabbleWord()) {
                     throw IllegalMoveException("Invalid word: ${word.joinToString("") { it.letter.toString() }}")
                 }
             }
-
-            if (!usesBoardPiece && !placedSquares.contains(center()))
-                throw BoardPieceNotUsedException("Move must use a board piece")
-
             return placedSquares to totalScore
         }
+    }
+
+    override fun iterator(): Iterator<Square> {
+        return board.flatten().iterator()
     }
 }

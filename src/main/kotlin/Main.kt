@@ -1,45 +1,29 @@
 import controllers.GameController
+import main.kotlin.controllers.players.AI2
 import models.Player
 import views.text.ConsoleBoard
 import views.text.ConsolePlayerController
 import views.web.GameLobby
 
-
-
-fun main(args: Array<String>) {
-    when {
-        args.contains("--web") -> {
-            val config = ServerConfig.load()
-            val isProduction = args.contains("--prod")
-
-            startWebGame(config.copy(isProduction = isProduction))
-        }
-        else -> startTextGame()
-    }
+fun main() {
+    startTextGame()
 }
 
-fun startWebGame(config: ServerConfig) {
-    val host = if (config.isProduction) config.productionUrl else config.host
-    println("Starting server on $host:${config.port}")
-
-    val lobby = GameLobby(
-        port = config.port,
-        host = host
-    )
-
+fun startWebGame() {
+    val lobby = GameLobby()
     // The following line will block until the server stops
     Thread.currentThread().join()
 }
 
 fun startTextGame() {
-    val sky = Player("Sky", ConsolePlayerController.INSTANCE)
-    val mari = Player("Mari", ConsolePlayerController.INSTANCE)
+    val aiController = AI2(1000)
+    val ai1 = Player("AI 1", aiController)
+    val ai2 = Player("AI 2", aiController)
     GameController().startGame(
         ConsoleBoard(
             listOf(
-                //players
-                sky,
-                mari
+                ai1,
+                ai2
             )
         )
     )

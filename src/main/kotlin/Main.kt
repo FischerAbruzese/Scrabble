@@ -17,13 +17,14 @@ fun startWebGame() {
 
 fun startTextGame() {
     val aiController = AI2(1000)
-    val ai1 = Player("AI 1", aiController)
-    val ai2 = Player("AI 2", aiController)
+    val humanController = ConsolePlayerController.INSTANCE
+    val human = Player("sky", humanController)
+    val ai = Player("AI", aiController)
     GameController().startGame(
         ConsoleBoard(
             listOf(
-                ai1,
-                ai2
+                human,
+                ai
             )
         )
     )

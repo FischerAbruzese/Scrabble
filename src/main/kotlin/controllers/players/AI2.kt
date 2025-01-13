@@ -7,10 +7,7 @@ import models.board.Coord
 import models.board.Square
 import models.tiles.Hand
 import models.tiles.Piece
-import models.turn.Direction
-import models.turn.Move
-import models.turn.Pass
-import models.turn.Turn
+import models.turn.*
 import util.Dictionary
 import java.util.*
 import kotlin.collections.HashSet
@@ -36,14 +33,11 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
             bestMove = checkRow(gameState, hand, rowWithIndex, bestMove)
         }
 
+        if(bestMove.move != null) {return bestMove.move!!}
 
+        if (gameState.bag.isEmpty()) return Pass()
 
-        return bestMove.move?.let { move ->
-            Move(move.start, move.direction, move.pieces.map { piece ->
-                if(piece.value == 0) Piece('_', 0)
-                else piece
-            })
-        } ?: Pass()
+        return Exchange(player.hand.pieces.subList(0, gameState.bag.size()))
     }
 
     /** @return the max of bestMoveAtSpot for each spot in both directions or previousBestMove, handles blank tiles */
@@ -59,9 +53,10 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         val blank = hand.pieces.find { '_' == it.letter } //finds the first occurrence
         if(blank != null) {
             return ('a'..'z').maxOf {
+                blank.letter = it
                 checkRow(
                     gameState,
-                    Hand(hand.pieces - blank + Piece(it, 0)),
+                    hand,
                     row,
                     previousBestMove
                 )

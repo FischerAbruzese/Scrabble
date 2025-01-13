@@ -26,43 +26,36 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         Thread.sleep(moveDelayMilli)
 
         val hand = player.hand
-        var bestMove = MoveAndScore()
+        val bestMove: MoveAndScore = gameState.board.rows().withIndex().maxOf { row -> bestMoveAtRow(gameState, hand, row) }
 
-        //Search every row for the best scoring move in that row
-        for(rowWithIndex in gameState.board.rows().withIndex()) {
-            bestMove = checkRow(gameState, hand, rowWithIndex, bestMove)
-        }
+        if(bestMove.move != null) {return bestMove.move} //Move exists
 
-        if(bestMove.move != null) {return bestMove.move!!}
-
-        if (gameState.bag.isEmpty()) return Pass()
+        if (gameState.bag.isEmpty()) return Pass() //No Move, no pieces to exchange
 
         return Exchange(player.hand.pieces.subList(0, gameState.bag.size()))
     }
 
     /**
-     * Returns the updated best move accounting for all possible moves starting from the given row
+     * Returns the best move out of all moves that start on a square in the given row
      *
-     * @return the max of bestMoveAtSpot for each spot in both directions or previousBestMove, handles blank tiles
+     * @return the max of bestMoveAtSpot for each spot in both directions, handles blank tiles
      */
-    private fun checkRow(
+    private fun bestMoveAtRow(
         gameState: GameState,
         hand: Hand,
-        row: IndexedValue<Array<Square>>,
-        previousBestMove: MoveAndScore //can we prune early by knowing this?
+        row: IndexedValue<Array<Square>>
     ): MoveAndScore {
-        var bestMove = previousBestMove
+        var bestMove = MoveAndScore()
 
         //Handle blanks
         val blank = hand.pieces.find { '_' == it.letter } //finds the first occurrence
         if(blank != null) {
             return ('a'..'z').maxOf {//for blanks, try a hand with each possible letter
                 blank.letter = it
-                checkRow(
+                bestMoveAtRow(
                     gameState,
                     hand,
-                    row,
-                    previousBestMove
+                    row
                 )
             }
         }
@@ -97,9 +90,10 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         var minLength = findMinLength(board, coord, direction, hand.size())
             ?: return MoveAndScore()
 
-        if(ignoreSingletons && minLength == 1) minLength = 2 //singletons might have been checked in other direction
+        if(ignoreSingletons) minLength = maxOf(minLength, 2) //singletons might have been checked in other direction
 
         var bestMove = MoveAndScore()
+
         fun searchPermutations(prefix: List<Piece> = listOf(), remaining: List<Piece> = hand.pieces.toList()) {
             if(prefix.size >= maxLength) return
             //check if there's any valid words with this prefix

@@ -24,11 +24,11 @@
     <build>
         <resources>
             <resource>
-                <directory>resources</directory>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
-        <sourceDirectory>kotlin</sourceDirectory>
-        <!--        <testSourceDirectory>src/test/kotlin</testSourceDirectory>-->
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
+<!--        <testSourceDirectory>src/test/kotlin</testSourceDirectory>-->
         <plugins>
             <plugin>
                 <groupId>org.jetbrains.kotlin</groupId>

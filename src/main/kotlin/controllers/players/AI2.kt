@@ -113,41 +113,23 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
     }
 
     /** @return minimum word size to be able to be legally placed, null if it's greater than handSize */
-    private fun findMinLength(board: Board, coord: Coord, direction: Direction, handSize: Int): Int? {
-        var incrementCoord = Coord(
-            if (direction == Direction.ACROSS) -1 else 0,
-            if (direction == Direction.DOWN) -1 else 0
-        )
-        //before
-        if(board.getOrNull(coord.add(incrementCoord))?.hasPiece() == true) return 1
+    private fun findMinLength(board: Board, loc: Coord, dir: Direction, numPieces: Int = 7): Int {
+        fun Coord.plusParallel(i: Int): Coord = if(dir == Direction.ACROSS) this.add(i, 0) else add(0, i)
+        fun Coord.plusPerpendicular(i: Int): Coord = if(dir == Direction.ACROSS) this.add(0, i) else add(i, 0)
 
-        for(i in 0..<handSize) {
-            val currentLoc = coord.add(
-                if (direction == Direction.ACROSS) i else 0,
-                if (direction == Direction.DOWN) i else 0
-            )
+        var curr = loc
+        //check behind
+        if(board[curr.plusParallel(-1)].hasPiece()) return 1
 
-            if(currentLoc == board.center()) return i
-
-            val inFront = board.getOrNull(currentLoc.add(
-                if (direction == Direction.ACROSS) 1 else 0,
-                if (direction == Direction.DOWN) 1 else 0
-            ))
-            if(inFront?.hasPiece() == true) return i
-
-            val perpendicular = board.getOrNull(currentLoc.add(
-                if (direction == Direction.ACROSS) 0 else 1,
-                if (direction == Direction.DOWN) 0 else 1
-            ))
-            if(perpendicular?.hasPiece() == true) return i
-
-            val oppositePerpendicular = board.getOrNull(currentLoc.add(
-                if (direction == Direction.ACROSS) 0 else -1,
-                if (direction == Direction.DOWN) 0 else -1
-            ))
-            if(oppositePerpendicular?.hasPiece() == true) return i
+        for(i in 1..numPieces) {
+            if(
+                board.getOrNull(curr.plusParallel(1))?.hasPiece() == true ||
+                board.getOrNull(curr.plusPerpendicular(-1))?.hasPiece() == true ||
+                board.getOrNull(curr.plusPerpendicular(1))?.hasPiece() == true
+            ) return i
+            curr = curr.plusParallel(1)
         }
-        return null
+        return -1
     }
 
     /** iterates backwards in the direction, finding the prefix from the pieces it finds before the coord */
@@ -158,7 +140,7 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         )
 
         val prefix = LinkedList<Piece>()
-        while (nextCoord.x > 0 && nextCoord.y > 0 && this[nextCoord].hasPiece()) {
+        while (nextCoord.x >= 0 && nextCoord.y >= 0 && this[nextCoord].hasPiece()) {
             prefix.addFirst(this[nextCoord].piece!!)
 
             nextCoord = Coord(

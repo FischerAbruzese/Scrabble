@@ -104,7 +104,7 @@ class Hand(piecesInit: List<Piece>) {
      * @return List of pieces that were pulled
      */
     fun usePieces(bag: Bag, piecesToUse: List<Piece>): List<Piece> {
-        pieces.removeAll(piecesToUse)
+        piecesToUse.forEach{pieces.remove(it)}
         val pulled = bag.draw(piecesToUse.size)
         pieces.addAll(pulled)
         return pulled

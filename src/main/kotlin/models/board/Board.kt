@@ -160,14 +160,14 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
     private fun findBeginningOfWord(coord: Coord, direction: Direction): Coord {
         var currCord = coord
         var nextCoord = Coord(
-            coord.x - if (direction == Direction.ACROSS) 1 else 0,
-            coord.y - if (direction == Direction.DOWN) 1 else 0
+            currCord.x - if (direction == Direction.ACROSS) 1 else 0,
+            currCord.y - if (direction == Direction.DOWN) 1 else 0
         )
         while (nextCoord.x > 0 && nextCoord.y > 0 && this[nextCoord].hasPiece()) {
             currCord = nextCoord
             nextCoord = Coord(
-                coord.x - if (direction == Direction.ACROSS) 1 else 0,
-                coord.y - if (direction == Direction.DOWN) 1 else 0
+                currCord.x - if (direction == Direction.ACROSS) 1 else 0,
+                currCord.y - if (direction == Direction.DOWN) 1 else 0
             )
         }
         return currCord

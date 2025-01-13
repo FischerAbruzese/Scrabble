@@ -17,6 +17,7 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         Dictionary.words.forEach {
             for(i in 1..it.length) add(it.substring(0, i))
         }
+        add("")
     }
 
     override fun pushMessage(message: String, player: String) {
@@ -45,12 +46,13 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         hand: Hand,
         row: IndexedValue<Array<Square>>
     ): MoveAndScore {
+        println("Checking row ${row.index}")
         var bestMove = MoveAndScore()
 
         //Handle blanks
         val blank = hand.pieces.find { '_' == it.letter } //finds the first occurrence
         if(blank != null) {
-            return ('a'..'z').maxOf {//for blanks, try a hand with each possible letter
+            return ('a'..'z').maxOf {//for blanks, try a hand with each possible letter(lowercase represents blanks)
                 blank.letter = it
                 bestMoveAtRow(
                     gameState,
@@ -76,6 +78,7 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
             )
         }
 
+        println("Best move at row ${row.index}: $bestMove")
         return bestMove
     }
 
@@ -87,16 +90,18 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         maxLength : Int,
         ignoreSingletons: Boolean = false
     ): MoveAndScore {
-        var minLength = findMinLength(board, coord, direction, hand.size()) ?: return MoveAndScore() //room for improvement(think i've seen this one on a report card before)
+        println("Checking spot $coord")
+        var minLength = findMinLength(board, coord, direction, hand.size()) ?: return MoveAndScore().also{println("No possible moves due to min length")} //room for improvement(think i've seen this one on a report card before)
 
         if(ignoreSingletons) minLength = maxOf(minLength, 2) //singletons might have been checked in other direction
 
         var bestMove = MoveAndScore()
 
         fun searchPermutations(prefix: List<Piece> = listOf(), remaining: List<Piece> = hand.pieces.toList()) {
-            if(prefix.size >= maxLength) return
+            println("Searching permutations with prefix: ${prefix.joinToString("") { it.letter.toString() }} and remaining: ${remaining.joinToString("") { it.letter.toString() }}")
+            if(prefix.size >= maxLength) {println("Prefix \"${prefix.joinToString("") { it.letter.toString() }}\" too long"); return}
             //check if there's any valid words with this prefix
-            if(!prefixes.contains(prefix.joinToString("") { it.letter.toString() })) return
+            if(!prefixes.contains(prefix.joinToString("") { it.letter.toString().lowercase() })) {println("Prefix \"${prefix.joinToString("") { it.letter.toString() }}\" not in dictionary"); return}
 
             for(letter in remaining) {
                 if(minLength < prefix.size) { //try and score it if it's long enough
@@ -104,13 +109,14 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
                     try{
                         val score = board.findMove(move).second //this should be the most expensive call
                         if(score > bestMove.score) bestMove = MoveAndScore(move, score) //this accesses variable inside fun bestMoveAtSpot
-                    } catch (_:Exception) {  }
+                    } catch (_:Exception) { println("Invalid move") }
                 }
                 searchPermutations(prefix + letter, remaining - letter)
             }
         }
         searchPermutations(prefix = board.findPrefix(coord, direction))
 
+        println("Best move at spot $coord: $bestMove")
         return bestMove
     }
 

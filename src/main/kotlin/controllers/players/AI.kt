@@ -81,14 +81,7 @@ class AI : PlayerController {
 
                 val coord = Coord(rowIndex, boardSize - backwardsColIndex - 1)
                 bestMove = maxOf (
-                    bestMove,
-                    bestMoveAtSpot(
-                        gameState.board,
-                        hand,
-                        direction,
-                        coord,
-                        maxPieces
-                    )
+                    bestMove, bestMoveAtSpot(gameState.board, hand, direction, coord, maxPieces)
                 )
             }
         }

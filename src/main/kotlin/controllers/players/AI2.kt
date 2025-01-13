@@ -40,19 +40,23 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         return Exchange(player.hand.pieces.subList(0, gameState.bag.size()))
     }
 
-    /** @return the max of bestMoveAtSpot for each spot in both directions or previousBestMove, handles blank tiles */
+    /**
+     * Returns the updated best move accounting for all possible moves starting from the given row
+     *
+     * @return the max of bestMoveAtSpot for each spot in both directions or previousBestMove, handles blank tiles
+     */
     private fun checkRow(
         gameState: GameState,
         hand: Hand,
         row: IndexedValue<Array<Square>>,
         previousBestMove: MoveAndScore //can we prune early by knowing this?
     ): MoveAndScore {
-        var rowBest = MoveAndScore()
+        var bestMove = previousBestMove
 
-        //for blanks, try a hand with each possible letter
+        //Handle blanks
         val blank = hand.pieces.find { '_' == it.letter } //finds the first occurrence
         if(blank != null) {
-            return ('a'..'z').maxOf {
+            return ('a'..'z').maxOf {//for blanks, try a hand with each possible letter
                 blank.letter = it
                 checkRow(
                     gameState,
@@ -63,19 +67,23 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
             }
         }
 
-        for((colNum, square) in row.value.withIndex()) {
+        var maxPieces = 0 //Number of empty squares between current spot and right edge
+        for((colNum, square) in row.value.withIndex().reversed()) {
             val coord = Coord(colNum, row.index)
+
             if(square.hasPiece()) continue
 
+            maxPieces++
+
             //check both directions
-            rowBest = maxOf(
-                rowBest,
-                bestMoveAtSpot(gameState.board, hand, Direction.DOWN, coord, row.value.size - colNum),
-                bestMoveAtSpot(gameState.board, hand, Direction.ACROSS, coord, row.value.size - colNum, true)
+            bestMove = maxOf(
+                bestMove,
+                bestMoveAtSpot(gameState.board, hand, Direction.DOWN, coord, maxPieces),
+                bestMoveAtSpot(gameState.board, hand, Direction.ACROSS, coord, maxPieces, true)
             )
         }
 
-        return maxOf(rowBest, previousBestMove)
+        return bestMove
     }
 
     private fun bestMoveAtSpot(

@@ -36,7 +36,14 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
             bestMove = checkRow(gameState, hand, rowWithIndex, bestMove)
         }
 
-        return bestMove.move ?: Pass()
+
+
+        return bestMove.move?.let { move ->
+            Move(move.start, move.direction, move.pieces.map { piece ->
+                if(piece.value == 0) Piece('_', 0)
+                else piece
+            })
+        } ?: Pass()
     }
 
     /** @return the max of bestMoveAtSpot for each spot in both directions or previousBestMove, handles blank tiles */

@@ -78,6 +78,10 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
         }
     })
 
+    init{//TODO
+        board[7][7] = board[7][7].withPiece(Piece('E', 0), null, null)
+    }
+
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size
                 && board.size % 2 == 1 //Board must be odd

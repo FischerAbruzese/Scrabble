@@ -117,8 +117,8 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
     /** @return minimum word size to be able to be legally placed, null if it's greater than handSize */
     private fun findMinLength(board: Board, coord: Coord, direction: Direction, handSize: Int): Int? {
         var incrementCoord = Coord(
-            coord.x - if (direction == Direction.ACROSS) 1 else 0,
-            coord.y - if (direction == Direction.DOWN) 1 else 0
+            if (direction == Direction.ACROSS) -1 else 0,
+            if (direction == Direction.DOWN) -1 else 0
         )
         //before
         if(board.getOrNull(coord.add(incrementCoord))?.hasPiece() == true) return 1

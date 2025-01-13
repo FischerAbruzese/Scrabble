@@ -119,7 +119,7 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
 
         var curr = loc
         //check behind
-        if(board[curr.plusParallel(-1)].hasPiece()) return 1
+        if(board.getOrNull(curr.plusParallel(-1))?.hasPiece() == true) return 1
 
         for(i in 1..numPieces) {
             if(

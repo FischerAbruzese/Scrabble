@@ -26,13 +26,13 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         Thread.sleep(moveDelayMilli)
 
         val hand = player.hand
-        val bestMove: MoveAndScore = gameState.board.rows().withIndex().maxOf { row -> bestMoveAtRow(gameState, hand, row) }
+        val bestMove = gameState.board.rows().withIndex().maxOf { row -> bestMoveAtRow(gameState, hand, row) }
 
         if(bestMove.move != null) {return bestMove.move} //Move exists
 
         if (gameState.bag.isEmpty()) return Pass() //No Move, no pieces to exchange
 
-        return Exchange(player.hand.pieces.subList(0, gameState.bag.size()))
+        return Exchange(player.hand.pieces.subList(0, minOf(gameState.bag.size(), hand.size())).toList())
     }
 
     /**
@@ -87,8 +87,7 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         maxLength : Int,
         ignoreSingletons: Boolean = false
     ): MoveAndScore {
-        var minLength = findMinLength(board, coord, direction, hand.size())
-            ?: return MoveAndScore()
+        var minLength = findMinLength(board, coord, direction, hand.size()) ?: return MoveAndScore() //room for improvement(think i've seen this one on a report card before)
 
         if(ignoreSingletons) minLength = maxOf(minLength, 2) //singletons might have been checked in other direction
 
@@ -102,17 +101,17 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
             for(letter in remaining) {
                 if(minLength < prefix.size) { //try and score it if it's long enough
                     val move = Move(coord, direction, prefix + letter)
-                    val score = try{ board.findMove(move).second } catch (_:Exception) { null } //this should be the most expensive call
-                    if(score != null && score > bestMove.score)
-                        bestMove = MoveAndScore(move, score) //this accesses variable inside fun bestMoveAtSpot
+                    try{
+                        val score = board.findMove(move).second //this should be the most expensive call
+                        if(score > bestMove.score) bestMove = MoveAndScore(move, score) //this accesses variable inside fun bestMoveAtSpot
+                    } catch (_:Exception) {  }
                 }
-
                 searchPermutations(prefix + letter, remaining - letter)
             }
         }
-        searchPermutations(board.findPrefix(coord, direction))
+        searchPermutations(prefix = board.findPrefix(coord, direction))
 
-        return bestMove //MAYBE NOT DONE HERE
+        return bestMove
     }
 
     /** @return minimum word size to be able to be legally placed, null if it's greater than handSize */
@@ -135,9 +134,13 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         return null
     }
 
-    /** iterates backwards in the direction, finding the prefix from the pieces it finds before the coord */
+    /**
+     * List of pieces before [coord] opposite to [direction]
+     *
+     * Iterates backwards in the direction, finding the prefix from the pieces it finds before the coord
+     */
     private fun Board.findPrefix(coord: Coord, direction: Direction): List<Piece> {
-        fun Coord.plusParallel(i: Int): Coord = if(direction == Direction.ACROSS) this.add(i, 0) else add(0, i)
+        fun Coord.plusParallel(i: Int): Coord = if(direction == Direction.ACROSS) add(i, 0) else add(0, i)
 
         var nextCoord = coord.plusParallel(-1)
         val prefix = LinkedList<Piece>()

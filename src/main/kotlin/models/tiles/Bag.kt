@@ -19,9 +19,7 @@ class Bag(pieces: List<Piece>) {
     /**
      * Gets and removes a random piece from the bag. Null if the bag is empty.
      */
-    fun nextPiece(): Piece? {
-        return pieces.removeLastOrNull()
-    }
+    fun nextPiece(): Piece? = pieces.removeLastOrNull()
 
     fun draw(n: Int): List<Piece> {
         var pickSize = n

@@ -18,7 +18,7 @@ fun startWebGame() {
 fun startTextGame() {
     val aiController = AI2(1000)
     val humanController = ConsolePlayerController.INSTANCE
-    val human = Player("sky", humanController)
+    val human = Player("mari", humanController)
     val ai = Player("AI", aiController)
     GameController().startGame(
         ConsoleBoard(

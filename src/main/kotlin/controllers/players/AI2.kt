@@ -1,7 +1,5 @@
-package main.kotlin.controllers.players
+package controllers.players
 
-import controllers.players.PlayerController
-import kotlinx.coroutines.Delay
 import models.GameState
 import models.Player
 import models.board.Board

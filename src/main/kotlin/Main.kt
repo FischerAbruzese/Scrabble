@@ -1,5 +1,5 @@
 import controllers.GameController
-import main.kotlin.controllers.players.AI2
+import controllers.players.AI2
 import models.Player
 import views.text.ConsoleBoard
 import views.text.ConsolePlayerController

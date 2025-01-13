@@ -46,25 +46,24 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
         row: IndexedValue<Array<Square>>,
         previousBestMove: MoveAndScore //can we prune early by knowing this?
     ): MoveAndScore {
-
         var rowBest = MoveAndScore()
+
+        //for blanks, try a hand with each possible letter
+        val blank = hand.pieces.find { '_' == it.letter } //finds the first occurrence
+        if(blank != null) {
+            return ('a'..'z').maxOf {
+                checkRow(
+                    gameState,
+                    Hand(hand.pieces - blank + Piece(it, 0)),
+                    row,
+                    previousBestMove
+                )
+            }
+        }
 
         for((colNum, square) in row.value.withIndex()) {
             val coord = Coord(colNum, row.index)
             if(square.hasPiece()) continue
-
-            //for blanks, try a hand with each possible letter
-            val blank = hand.pieces.find { '_' == it.letter } //finds the first occurrence
-            if(blank != null) {
-                return ('a'..'z').maxOf {
-                    checkRow(
-                        gameState,
-                        Hand(hand.pieces - blank + Piece(it, 1)),
-                        row,
-                        previousBestMove
-                    )
-                }
-            }
 
             //check both directions
             rowBest = maxOf(
@@ -113,7 +112,7 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
     }
 
     /** @return minimum word size to be able to be legally placed, null if it's greater than handSize */
-    private fun findMinLength(board: Board, loc: Coord, dir: Direction, numPieces: Int = 7): Int {
+    private fun findMinLength(board: Board, loc: Coord, dir: Direction, numPieces: Int = 7): Int? {
         fun Coord.plusParallel(i: Int): Coord = if(dir == Direction.ACROSS) this.add(i, 0) else add(0, i)
         fun Coord.plusPerpendicular(i: Int): Coord = if(dir == Direction.ACROSS) this.add(0, i) else add(i, 0)
 
@@ -129,7 +128,7 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
             ) return i
             curr = curr.plusParallel(1)
         }
-        return -1
+        return null
     }
 
     /** iterates backwards in the direction, finding the prefix from the pieces it finds before the coord */

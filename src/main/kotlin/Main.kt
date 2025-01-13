@@ -1,5 +1,5 @@
 import controllers.GameController
-import controllers.players.AI2
+import controllers.players.Ai
 import models.Player
 import views.text.ConsoleBoard
 import views.text.ConsolePlayerController
@@ -16,10 +16,10 @@ fun startWebGame() {
 }
 
 fun startTextGame() {
-    val aiController = AI2(1000)
+    val aiController = Ai(1000)
     val humanController = ConsolePlayerController.INSTANCE
-    val human = Player("mari", humanController)
-    val ai = Player("AI", aiController)
+    val human = Player("AImari", aiController)
+    val ai = Player("AIsky", aiController)
     GameController().startGame(
         ConsoleBoard(
             listOf(

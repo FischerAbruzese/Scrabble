@@ -140,19 +140,14 @@ class AI2(private val moveDelayMilli: Long = 0) : PlayerController {
 
     /** iterates backwards in the direction, finding the prefix from the pieces it finds before the coord */
     private fun Board.findPrefix(coord: Coord, direction: Direction): List<Piece> {
-        var nextCoord = Coord(
-            coord.x - if (direction == Direction.ACROSS) 1 else 0,
-            coord.y - if (direction == Direction.DOWN) 1 else 0
-        )
+        fun Coord.plusParallel(i: Int): Coord = if(direction == Direction.ACROSS) this.add(i, 0) else add(0, i)
 
+        var nextCoord = coord.plusParallel(-1)
         val prefix = LinkedList<Piece>()
         while (nextCoord.x >= 0 && nextCoord.y >= 0 && this[nextCoord].hasPiece()) {
             prefix.addFirst(this[nextCoord].piece!!)
 
-            nextCoord = Coord(
-                coord.x - if (direction == Direction.ACROSS) 1 else 0,
-                coord.y - if (direction == Direction.DOWN) 1 else 0
-            )
+            nextCoord = nextCoord.plusParallel(-1)
         }
         return prefix
     }

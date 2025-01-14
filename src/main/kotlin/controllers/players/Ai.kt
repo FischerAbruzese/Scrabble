@@ -126,6 +126,7 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
 
         for(i in 1..numPieces) {
             if(
+                curr == board.center() ||
                 board.getOrNull(curr.plusParallel(1))?.hasPiece() == true ||
                 board.getOrNull(curr.plusPerpendicular(-1))?.hasPiece() == true ||
                 board.getOrNull(curr.plusPerpendicular(1))?.hasPiece() == true

@@ -29,9 +29,16 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         val hand = player.hand
         val bestMove = gameState.board.rows().withIndex().maxOf { row -> bestMoveAtRow(gameState, hand, row) }
 
-        if(bestMove.move != null) {return bestMove.move} //Move exists
+        if(bestMove.move != null) { //Move exists
+            player.exchangeStreak = 0;
+            return bestMove.move
+        }
 
         if (gameState.bag.isEmpty()) return Pass() //No Move, no pieces to exchange
+
+        if(player.exchangeStreak > 3) return Pass() //To avoid never ending the game, limit amount of exchanges in a row
+
+        player.exchangeStreak++
 
         return Exchange(player.hand.pieces.subList(0, minOf(gameState.bag.size(), hand.size())).toList())
     }

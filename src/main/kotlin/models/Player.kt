@@ -13,6 +13,8 @@ data class Player(
     /** The score for this player */
     var score: Int = 0
 ) {
+    var exchangeStreak = 0
+
     fun gameEnd() {
         score -= hand.pieces.sumOf { it.value }
     }

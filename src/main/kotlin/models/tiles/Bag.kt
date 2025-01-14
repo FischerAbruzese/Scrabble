@@ -1,9 +1,11 @@
 package models.tiles
 
 import exceptions.NotEnoughPiecesException
+import kotlin.random.Random
 
-class Bag(pieces: List<Piece>) {
-    val pieces: MutableList<Piece> = pieces.shuffled().toMutableList()
+class Bag(pieces: List<Piece>, val random: Random = Random) {
+
+    val pieces: MutableList<Piece> = pieces.shuffled(random).toMutableList()
 
     fun isEmpty(): Boolean {
         return size() == 0
@@ -42,7 +44,7 @@ class Bag(pieces: List<Piece>) {
         if (pieces.size > size()) throw NotEnoughPiecesException("Bag does not have enough pieces to exchange")
         val drawn = List(exchanges.size) { nextPiece()!! }
         pieces.addAll(exchanges)
-        pieces.shuffle()
+        pieces.shuffle(random)
         return drawn
     }
 

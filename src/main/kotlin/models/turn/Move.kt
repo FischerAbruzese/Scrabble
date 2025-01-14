@@ -4,7 +4,7 @@ import models.board.Coord
 import models.tiles.Piece
 
 
-class Move(
+data class Move(
     val start: Coord,
     val direction: Direction,
     val pieces: List<Piece>

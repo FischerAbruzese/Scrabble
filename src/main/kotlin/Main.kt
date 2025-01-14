@@ -4,6 +4,7 @@ import models.Player
 import views.text.ConsoleBoard
 import views.text.ConsolePlayerController
 import views.web.GameLobby
+import kotlin.random.Random
 
 fun main() {
     startTextGame()
@@ -20,7 +21,7 @@ fun startTextGame() {
     val humanController = ConsolePlayerController.INSTANCE
     val human = Player("AImari", aiController)
     val ai = Player("AIsky", aiController)
-    GameController().startGame(
+    GameController(Random(69)).startGame(
         ConsoleBoard(
             listOf(
                 human,

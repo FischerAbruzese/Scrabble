@@ -208,7 +208,7 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
                     move = Move(move.start, Direction.ACROSS, move.pieces)
                 }
                 //if there's a tile above or below, our word is down
-                if (getOrNull(Coord(currentLocation.x, currentLocation.y - 1))?.hasPiece() == true || getOrNull(Coord(currentLocation.x, currentLocation.y + 1))?.hasPiece() == true) {
+                else if (getOrNull(Coord(currentLocation.x, currentLocation.y - 1))?.hasPiece() == true || getOrNull(Coord(currentLocation.x, currentLocation.y + 1))?.hasPiece() == true) {
                     move = Move(move.start, Direction.DOWN, move.pieces)
                 }
             }

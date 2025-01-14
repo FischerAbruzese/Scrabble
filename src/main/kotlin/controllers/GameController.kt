@@ -39,6 +39,7 @@ class GameController(private val random: Random = Random) {
             boardController.push(game)
             nextMove()
         }
+        boardController.push(game)
 
         runBlocking { boardController.closeAllConnections() }
     }

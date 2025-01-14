@@ -102,7 +102,7 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         coord: Coord,
         ignoreSingletons: Boolean = false
     ): MoveAndScore {
-        //println("Searching coord $coord in direction $direction")
+        
         var minLength = findMinLength(board, coord, direction, hand.size()) ?: return MoveAndScore() //room for improvement(think i've seen this one on a report card before)
         val maxLength = findMaxLength(board, coord, direction)
         if(ignoreSingletons) minLength = maxOf(minLength, 2) //singletons might have been checked in other direction
@@ -110,13 +110,9 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         var bestMove = MoveAndScore()
 
         fun searchPermutations(boardPrefix: List<Piece> = listOf(), prefix: List<Piece> = listOf(), remaining: List<Piece> = hand.pieces.toList()) {
-            if(boardPrefix.size + prefix.size >= maxLength) {
-                //println("Prefix ${prefix.joinToString("") { it.letter.toString().lowercase() }} too long");
-                return
-            }
+            if(boardPrefix.size + prefix.size >= maxLength) return
             //check if there's any valid words with this prefix
             if(!prefixes.contains(boardPrefix.joinToString("") { it.letter.toString().lowercase() } + prefix.joinToString("") { it.letter.toString().lowercase() })) {
-                //println("Prefix ${prefix.joinToString("") { it.letter.toString().lowercase() }} not in dictionary");
                 return
             }
 
@@ -125,10 +121,10 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
                     val move = Move(coord, direction, prefix + letter)
                     try{
                         val score = board.findMove(move).second //this should be the most expensive call
-                        //println("Move found: $move with score $score")
+                        
                         if(score > bestMove.score) bestMove = MoveAndScore(move, score) //this accesses variable inside fun bestMoveAtSpot
                     } catch (_:Exception) {
-                        //println("Illegal move $move")
+                        
                     }
                 }
                 searchPermutations(prefix = prefix + letter, remaining = remaining - letter)

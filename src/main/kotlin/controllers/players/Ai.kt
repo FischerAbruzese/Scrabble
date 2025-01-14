@@ -79,19 +79,16 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
             }
         }
 
-        var maxPieces = 0 //Number of empty squares between current spot and right edge
         for((colNum, square) in row.value.withIndex().reversed()) {
             val coord = Coord(colNum, row.index)
 
             if(square.hasPiece()) continue
 
-            maxPieces++
-
             //check both directions
             bestMove = maxOf(
                 bestMove,
-                bestMoveAtSpot(gameState.board, hand, Direction.DOWN, coord, maxPieces),
-                bestMoveAtSpot(gameState.board, hand, Direction.ACROSS, coord, maxPieces, true)
+                bestMoveAtSpot(gameState.board, hand, Direction.DOWN, coord),
+                bestMoveAtSpot(gameState.board, hand, Direction.ACROSS, coord, true)
             )
         }
 
@@ -103,11 +100,11 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         hand: Hand,
         direction: Direction,
         coord: Coord,
-        maxLength : Int,
         ignoreSingletons: Boolean = false
     ): MoveAndScore {
         //println("Searching coord $coord in direction $direction")
         var minLength = findMinLength(board, coord, direction, hand.size()) ?: return MoveAndScore() //room for improvement(think i've seen this one on a report card before)
+        val maxLength = findMaxLength(board, coord, direction)
         if(ignoreSingletons) minLength = maxOf(minLength, 2) //singletons might have been checked in other direction
 
         var bestMove = MoveAndScore()
@@ -124,7 +121,7 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
             }
 
             for(letter: Piece in remaining) {
-                if(minLength < prefix.size + 1) { //try and score it if it's long enough
+                if(minLength <= prefix.size + 1) { //try and score it if it's long enough
                     val move = Move(coord, direction, prefix + letter)
                     try{
                         val score = board.findMove(move).second //this should be the most expensive call
@@ -142,25 +139,35 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         return bestMove
     }
 
-    /** @return minimum word size to be able to be legally placed, null if it's greater than handSize */
+    /** @return minimum word size to be able to be legally placed, null if it's greater than [numPieces] */
     private fun findMinLength(board: Board, loc: Coord, dir: Direction, numPieces: Int = 7): Int? {
-        fun Coord.plusParallel(i: Int): Coord = if(dir == Direction.ACROSS) this.add(i, 0) else add(0, i)
-        fun Coord.plusPerpendicular(i: Int): Coord = if(dir == Direction.ACROSS) this.add(0, i) else add(i, 0)
-
         var curr = loc
         //check behind
-        if(board.getOrNull(curr.plusParallel(-1))?.hasPiece() == true) return 1
+        if(board.getOrNull(curr.plusParallel(-1, dir))?.hasPiece() == true) return 1
 
         for(i in 1..numPieces) {
             if(
                 curr == board.center() ||
-                board.getOrNull(curr.plusParallel(1))?.hasPiece() == true ||
-                board.getOrNull(curr.plusPerpendicular(-1))?.hasPiece() == true ||
-                board.getOrNull(curr.plusPerpendicular(1))?.hasPiece() == true
+                board.getOrNull(curr.plusParallel(1, dir))?.hasPiece() == true ||
+                board.getOrNull(curr.plusPerpendicular(-1, dir))?.hasPiece() == true ||
+                board.getOrNull(curr.plusPerpendicular(1, dir))?.hasPiece() == true
             ) return i
-            curr = curr.plusParallel(1)
+            curr = curr.plusParallel(1, dir)
         }
         return null
+    }
+
+    /** @return maximum word size to be able to be legally placed*/
+    private fun findMaxLength(board: Board, loc: Coord, dir: Direction): Int {
+        var curr = loc
+
+        var numBlanks = 0
+        while(board.getOrNull(curr) != null){
+            if(!board.get(curr).hasPiece()) numBlanks++
+            curr = curr.plusParallel(1, dir)
+        }
+
+        return numBlanks
     }
 
     /**
@@ -169,14 +176,12 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
      * Iterates backwards in the direction, finding the prefix from the pieces it finds before the coord
      */
     private fun Board.findPrefix(coord: Coord, direction: Direction): List<Piece> {
-        fun Coord.plusParallel(i: Int): Coord = if(direction == Direction.ACROSS) add(i, 0) else add(0, i)
-
-        var nextCoord = coord.plusParallel(-1)
+        var nextCoord = coord.plusParallel(-1, direction)
         val prefix = LinkedList<Piece>()
         while (nextCoord.x >= 0 && nextCoord.y >= 0 && this[nextCoord].hasPiece()) {
             prefix.addFirst(this[nextCoord].piece!!)
 
-            nextCoord = nextCoord.plusParallel(-1)
+            nextCoord = nextCoord.plusParallel(-1, direction)
         }
         return prefix
     }

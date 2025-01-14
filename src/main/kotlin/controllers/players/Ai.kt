@@ -39,7 +39,7 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         if(player.exchangeStreak > 3) return Pass() //To avoid never ending the game, limit amount of exchanges in a row
 
         player.exchangeStreak++
-        return Pass()//TODO: remove
+
         return Exchange(player.hand.pieces.subList(0, minOf(gameState.bag.size(), hand.size())).toList())
     }
 

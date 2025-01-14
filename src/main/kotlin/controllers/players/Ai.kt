@@ -31,7 +31,17 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
 
         if(bestMove.move != null) { //Move exists
             player.exchangeStreak = 0;
-            return bestMove.move
+
+            val piecesToPlay = bestMove.move.pieces.toMutableList()
+            val blanks = bestMove.move.pieces.withIndex().filter { it.value.letter.isLowerCase() }
+
+            for(blank in blanks) {
+                val blankReplacement = hand.pieces.find { it.letter == '_' } ?: throw Exception("AI tried to make an illegal move")
+                blankReplacement.letter = blank.value.letter.uppercaseChar()
+                piecesToPlay[blank.index] = blankReplacement
+            }
+
+            return Move(bestMove.move.start, bestMove.move.direction, piecesToPlay)
         }
 
         if (gameState.bag.isEmpty()) return Pass() //No Move, no pieces to exchange
@@ -59,11 +69,11 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         val blank = hand.pieces.find { '_' == it.letter } //finds the first occurrence
         if(blank != null) {
             return ('a'..'z').maxOf {//for blanks, try a hand with each possible letter(lowercase represents blanks)
-                blank.letter = it
+                val blankReplacement = Piece(it, blank.value)
                 bestMoveAtRow(
                     gameState,
-                    hand,
-                    row
+                    Hand(hand.pieces - blank + blankReplacement),
+                    row,
                 )
             }
         }

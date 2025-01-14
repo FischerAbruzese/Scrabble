@@ -95,7 +95,7 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         maxLength : Int,
         ignoreSingletons: Boolean = false
     ): MoveAndScore {
-        println("Searching coord $coord in direction $direction")
+        //println("Searching coord $coord in direction $direction")
         var minLength = findMinLength(board, coord, direction, hand.size()) ?: return MoveAndScore() //room for improvement(think i've seen this one on a report card before)
 
         if(ignoreSingletons) minLength = maxOf(minLength, 2) //singletons might have been checked in other direction
@@ -104,17 +104,26 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
 
         fun searchPermutations(prefix: List<Piece> = listOf(), remaining: List<Piece> = hand.pieces.toList()) {
             //println("Searching permutation ${prefix.joinToString("") { it.letter.toString().lowercase() }} with remaining ${remaining.joinToString("") { it.letter.toString().lowercase() }}")
-            if(prefix.size >= maxLength) {println("Prefix ${prefix.joinToString("") { it.letter.toString().lowercase() }} too long"); return}
+            if(prefix.size >= maxLength) {
+                //println("Prefix ${prefix.joinToString("") { it.letter.toString().lowercase() }} too long");
+                return
+            }
             //check if there's any valid words with this prefix
-            if(!prefixes.contains(prefix.joinToString("") { it.letter.toString().lowercase() })) {println("Prefix ${prefix.joinToString("") { it.letter.toString().lowercase() }} not in dictionary"); return}
+            if(!prefixes.contains(prefix.joinToString("") { it.letter.toString().lowercase() })) {
+                //println("Prefix ${prefix.joinToString("") { it.letter.toString().lowercase() }} not in dictionary");
+                return
+            }
 
             for(letter: Piece in remaining) {
                 if(minLength < prefix.size) { //try and score it if it's long enough
                     val move = Move(coord, direction, prefix + letter)
                     try{
                         val score = board.findMove(move).second //this should be the most expensive call
+                        println("Move found: $move with score $score")
                         if(score > bestMove.score) bestMove = MoveAndScore(move, score) //this accesses variable inside fun bestMoveAtSpot
-                    } catch (_:Exception) {println("Illegal move $move") }
+                    } catch (_:Exception) {
+                        //println("Illegal move $move")
+                    }
                 }
                 searchPermutations(prefix + letter, remaining - letter)
             }
@@ -165,7 +174,8 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
 
     /** Contains a move and score and allows for null moves (default with -1 score) */
     private data class MoveAndScore(val move: Move?, val score: Int): Comparable<MoveAndScore> {
-        /** constructs null move and -1 score */ constructor() : this(null, -1)
+        /** constructs null move and -1 score */
+        constructor() : this(null, -1)
 
         override fun compareTo(other: MoveAndScore) = this.score.compareTo(other.score)
     }

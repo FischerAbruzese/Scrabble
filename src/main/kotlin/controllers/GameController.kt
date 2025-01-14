@@ -39,7 +39,19 @@ class GameController(private val random: Random = Random) {
             boardController.push(game)
             nextMove()
         }
+
+        //gameover stuff
         boardController.push(game)
+
+        for (player in players) {
+            player.score -= player.hand.pieces.sumOf { it.value }
+        }
+
+        val winner = players.maxBy { it.score }
+
+        for(player in players) {
+            player.playerController.pushMessage("${winner.name} won with a score of ${winner.score}!", player.name)
+        }
 
         runBlocking { boardController.closeAllConnections() }
     }

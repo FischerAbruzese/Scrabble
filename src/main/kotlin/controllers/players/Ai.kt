@@ -21,6 +21,8 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
     }
 
     override fun pushMessage(message: String, player: String) {
+        //TODO remove this
+        println("<$player> $message")
     }
 
     override fun getTurn(gameState: GameState, player: Player): Turn {

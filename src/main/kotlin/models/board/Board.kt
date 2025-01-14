@@ -78,10 +78,6 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
         }
     })
 
-    init{//TODO
-        board[7][7] = board[7][7].withPiece(Piece('E', 0), null, null)
-    }
-
     fun classInv(): Boolean {
         return board.isNotEmpty() && board.size == board[0].size
                 && board.size % 2 == 1 //Board must be odd
@@ -243,12 +239,17 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
                 if (!isValidCoordinate(currentLocation)) {
                     throw IllegalMoveException("Move is out of bounds")
                 }
-
                 set(
                     currentLocation,
                     Square(get(currentLocation).multiplier, piece, null, null)
                 )
                 placedSquares.add(currentLocation)
+
+                if(!usesBoardPiece &&
+                    (getOrNull(currentLocation.plusPerpendicular(1, move.direction))?.hasPiece() == true ||
+                    getOrNull(currentLocation.plusPerpendicular(-1, move.direction))?.hasPiece() == true)
+                ) usesBoardPiece = true
+
                 //update score
                 val sq = get(currentLocation)
                 placedWordScore += when (sq.multiplier) {

@@ -1,6 +1,6 @@
 package util
 
-class Matrix<T>(private val rowCount: Int, private val colCount: Int, init: (Int, Int) -> T) : Iterable<T>{
+class Matrix<T>(private val rowCount: Int, private val colCount: Int, init: (Int, Int) -> T) : Iterable<T>, Cloneable{
 
     @Suppress("UNCHECKED_CAST")
     private val secretArray = Array<Any?>(rowCount * colCount) { i ->
@@ -160,6 +160,10 @@ class Matrix<T>(private val rowCount: Int, private val colCount: Int, init: (Int
     operator fun contains(element: T): Boolean = secretArray.contains(element)
 
     override fun iterator(): Iterator<T> = secretArray.iterator()
+
+    override fun clone(): Any {
+        return secretArray.clone()
+    }
 
     override fun toString(): String{
         return joinToString(rowSeparator = "\n", colSeparator = ", ")

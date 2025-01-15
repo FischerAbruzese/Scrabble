@@ -137,6 +137,41 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         return bestMove
     }
 
+    private data class SpotInfo(val minMoveLength: Int?, val maxMoveLength: Int, val placedPrefixesAt: Array<Piece?>)
+    private fun getSpotInfo(board: Board, loc: Coord, dir: Direction, numPieces: Int): SpotInfo {
+        var minMoveLength: Int? = null
+        var maxMoveLength = 0
+        val placedPrefixesAt = ArrayList<Piece?>(15).apply { repeat(15-numPieces) { add(null) } }
+
+        var curr = loc
+        //check behind
+        if(board.getOrNull(curr.plusParallel(-1, dir))?.hasPiece() == true) {
+            minMoveLength = 1
+        }
+
+        var i = 0 //the distance from where you started
+        while(board.getOrNull(curr) != null) {
+            if(!board[curr].hasPiece()) maxMoveLength++
+            else {
+                placedPrefixesAt[i] = board[curr].piece!!
+            }
+
+            if(
+                minMoveLength == null &&
+                (curr == board.center() ||
+                board.getOrNull(curr.plusParallel(1, dir))?.hasPiece() == true ||
+                board.getOrNull(curr.plusPerpendicular(-1, dir))?.hasPiece() == true ||
+                board.getOrNull(curr.plusPerpendicular(1, dir))?.hasPiece() == true)
+            ) {
+                minMoveLength = i
+            }
+            curr = curr.plusParallel(1, dir)
+            i++
+        }
+
+        return SpotInfo(minMoveLength, maxMoveLength, placedPrefixesAt.toTypedArray())
+    }
+
     /** @return minimum word size to be able to be legally placed, null if it's greater than [numPieces] */
     private fun findMinLength(board: Board, loc: Coord, dir: Direction, numPieces: Int = 7): Int? {
         var curr = loc

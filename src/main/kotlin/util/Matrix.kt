@@ -1,12 +1,18 @@
 package util
 
-class Matrix<T>(private val rowCount: Int, private val colCount: Int, init: (Int, Int) -> T) : Iterable<T>, Cloneable{
+class Matrix<T> private constructor(
+    private val rowCount: Int,
+    private val colCount: Int,
+    private val secretArray: Array<T>
+): Iterable<T>, Cloneable {
 
     @Suppress("UNCHECKED_CAST")
-    private val secretArray = Array<Any?>(rowCount * colCount) { i ->
-        val (row, col) = getRowCol(i)
-        init(row, col)
-    } as Array<T>
+    constructor(rowCount: Int, colCount: Int, init: (Int, Int) -> T): this(rowCount, colCount,
+        Array<Any?>(rowCount * colCount) { i ->
+            val (row, col) = i / colCount to i % colCount
+            init(row, col)
+        } as Array<T>)
+
     private fun getRowCol(index: Int) = index / colCount to index % colCount
     private fun getIndex(row: Int, col: Int) = row*colCount + col
 
@@ -161,8 +167,8 @@ class Matrix<T>(private val rowCount: Int, private val colCount: Int, init: (Int
 
     override fun iterator(): Iterator<T> = secretArray.iterator()
 
-    override fun clone(): Any {
-        return secretArray.clone()
+    override fun clone(): Matrix<T> {
+        return Matrix(rowCount, colCount, secretArray = secretArray.clone())
     }
 
     override fun toString(): String{

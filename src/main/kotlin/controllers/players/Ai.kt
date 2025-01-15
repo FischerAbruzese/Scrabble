@@ -29,10 +29,15 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         Thread.sleep(moveDelayMilli)
 
         val hand = player.hand
-        val bestMove = gameState.board.rows().withIndex().maxOf { row -> bestMoveAtRow(gameState, hand, row) }
+        val bestMove = gameState.board.matrix
+            .rows()
+            .withIndex()
+            .asSequence()
+            .toList()
+            .maxOf { row -> bestMoveAtRow(gameState, hand, row) }
 
         if(bestMove.move != null) { //Move exists
-            player.exchangeStreak = 0;
+            player.exchangeStreak = 0
 
             val piecesToPlay = bestMove.move.pieces.toMutableList()
             val blanks = piecesToPlay.withIndex().filter { it.value.letter.isLowerCase() }
@@ -64,7 +69,7 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
     private fun bestMoveAtRow(
         gameState: GameState,
         hand: Hand,
-        row: IndexedValue<Array<Square>>
+        row: IndexedValue<List<Square>>
     ): MoveAndScore {
         var bestMove = MoveAndScore()
 
@@ -104,23 +109,40 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         coord: Coord,
         ignoreSingletons: Boolean = false
     ): MoveAndScore {
-        
-        var minLength = findMinLength(board, coord, direction, hand.size()) ?: return MoveAndScore() //room for improvement(think i've seen this one on a report card before)
-        val maxLength = findMaxLength(board, coord, direction)
-        if(ignoreSingletons) minLength = maxOf(minLength, 2) //singletons might have been checked in other direction
+        val (minLength, maxLength) = getSpotInfo(board, coord, direction, hand.size())
+
+        val startingWindow = board.findPrefix(coord, direction) + when (direction) {
+            Direction.ACROSS -> board.matrix
+                .getRow(coord.y)
+                .slice(coord.x..<board.matrix.colCount)
+                .map {it.piece}
+            Direction.DOWN -> board.matrix
+                .getCol(coord.x)
+                .slice(coord.y..<board.matrix.rowCount)
+                .map {it.piece}
+            else -> throw Exception()
+        }
+        val wasAlreadyPlaced = startingWindow.map { it != null }
+
+        if(minLength == null) return MoveAndScore()
 
         var bestMove = MoveAndScore()
 
-        fun searchPermutations(boardPrefix: List<Piece> = listOf(), prefix: List<Piece> = listOf(), remaining: List<Piece> = hand.pieces.toList()) {
-            if(boardPrefix.size + prefix.size >= maxLength) return
+        fun searchPermutations(turnWindow: List<Piece?>, remaining: List<Piece> = hand.pieces.toList()) {
+            val prefix = turnWindow.takeWhile { it != null } as List<Piece>
+
+            if(prefix.size+1 > maxLength) return //word too long
+
             //check if there's any valid words with this prefix
-            if(!prefixes.contains(boardPrefix.joinToString("") { it.letter.toString().lowercase() } + prefix.joinToString("") { it.letter.toString().lowercase() })) {
-                return
-            }
+            if(!prefixes
+                .contains(
+                    prefix.joinToString("") { it.letter.toString().lowercase() }
+                )
+            ) return
 
             for(letter: Piece in remaining) {
-                if(minLength <= prefix.size + 1) { //try and score it if it's long enough
-                    val move = Move(coord, direction, prefix + letter)
+                if(minLength <= prefix.size+1) { //try and score it if it's long enough
+                    val move = Move(coord, direction, (prefix + letter).filterIndexed { i,_ -> !wasAlreadyPlaced[i] })
                     try{
                         val score = board.findMove(move).second //this should be the most expensive call
                         
@@ -129,19 +151,23 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
                         
                     }
                 }
-                searchPermutations(prefix = prefix + letter, remaining = remaining - letter)
+                if(prefix.size >= turnWindow.size) continue //no more space to play
+                searchPermutations(
+                    turnWindow.toMutableList().apply { set(prefix.size, letter) },
+                    remaining = remaining - letter
+                )
             }
         }
-        searchPermutations(boardPrefix = board.findPrefix(coord, direction))
+        searchPermutations(startingWindow)
 
         return bestMove
     }
 
-    private data class SpotInfo(val minMoveLength: Int?, val maxMoveLength: Int, val placedPrefixesAt: Array<Piece?>)
+
+    private data class SpotInfo(val minMoveLength: Int?, val maxMoveLength: Int)
     private fun getSpotInfo(board: Board, loc: Coord, dir: Direction, numPieces: Int): SpotInfo {
         var minMoveLength: Int? = null
         var maxMoveLength = 0
-        val placedPrefixesAt = ArrayList<Piece?>(15).apply { repeat(15-numPieces) { add(null) } }
 
         var curr = loc
         //check behind
@@ -150,11 +176,8 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
         }
 
         var i = 0 //the distance from where you started
-        while(board.getOrNull(curr) != null) {
+        while(board.getOrNull(curr) != null && maxMoveLength < numPieces) {
             if(!board[curr].hasPiece()) maxMoveLength++
-            else {
-                placedPrefixesAt[i] = board[curr].piece!!
-            }
 
             if(
                 minMoveLength == null &&
@@ -162,45 +185,13 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
                 board.getOrNull(curr.plusParallel(1, dir))?.hasPiece() == true ||
                 board.getOrNull(curr.plusPerpendicular(-1, dir))?.hasPiece() == true ||
                 board.getOrNull(curr.plusPerpendicular(1, dir))?.hasPiece() == true)
-            ) {
-                minMoveLength = i
-            }
+            ) minMoveLength = i+1
+
             curr = curr.plusParallel(1, dir)
             i++
         }
 
-        return SpotInfo(minMoveLength, maxMoveLength, placedPrefixesAt.toTypedArray())
-    }
-
-    /** @return minimum word size to be able to be legally placed, null if it's greater than [numPieces] */
-    private fun findMinLength(board: Board, loc: Coord, dir: Direction, numPieces: Int = 7): Int? {
-        var curr = loc
-        //check behind
-        if(board.getOrNull(curr.plusParallel(-1, dir))?.hasPiece() == true) return 1
-
-        for(i in 1..numPieces) {
-            if(
-                curr == board.center() ||
-                board.getOrNull(curr.plusParallel(1, dir))?.hasPiece() == true ||
-                board.getOrNull(curr.plusPerpendicular(-1, dir))?.hasPiece() == true ||
-                board.getOrNull(curr.plusPerpendicular(1, dir))?.hasPiece() == true
-            ) return i
-            curr = curr.plusParallel(1, dir)
-        }
-        return null
-    }
-
-    /** @return maximum word size to be able to be legally placed*/
-    private fun findMaxLength(board: Board, loc: Coord, dir: Direction): Int {
-        var curr = loc
-
-        var numBlanks = 0
-        while(board.getOrNull(curr) != null){
-            if(!board.get(curr).hasPiece()) numBlanks++
-            curr = curr.plusParallel(1, dir)
-        }
-
-        return numBlanks
+        return SpotInfo(minMoveLength, maxMoveLength)
     }
 
     /**

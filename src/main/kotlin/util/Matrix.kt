@@ -1,8 +1,8 @@
 package util
 
 class Matrix<T> private constructor(
-    private val rowCount: Int,
-    private val colCount: Int,
+    val rowCount: Int,
+    val colCount: Int,
     private val secretArray: Array<T>
 ): Iterable<T>, Cloneable {
 
@@ -27,7 +27,10 @@ class Matrix<T> private constructor(
      *
      * @throws IndexOutOfBoundsException If the [row] or [col] is out of bounds of this array.
      */
-    operator fun get(row: Int, col: Int) = secretArray[getIndex(row, col)]
+    operator fun get(row: Int, col: Int): T {
+        if(col >= colCount) throw IndexOutOfBoundsException("col index $col$ is out of bounds for length $colCount")
+        return secretArray[getIndex(row, col)]
+    }
 
     /**
      * Sets the array element at the given [row] and [col] to the given [value].
@@ -47,8 +50,8 @@ class Matrix<T> private constructor(
      * @throws IndexOutOfBoundsException If the [row] is out of bounds of this array. TODO: check that this is true
      */
     @Suppress("UNCHECKED_CAST")
-    fun getRow(row: Int): Array<T> {
-        return Array<Any?>(colCount) {get(row, it)} as Array<T>
+    fun getRow(row: Int): List<T> {
+        return List(colCount) { get(row, it) }
     }
 
     /**
@@ -57,15 +60,15 @@ class Matrix<T> private constructor(
      * @throws IndexOutOfBoundsException If the [col] is out of bounds of this array. TODO: check that this is true
      */
     @Suppress("UNCHECKED_CAST")
-    fun getCol(col: Int): Array<T> {
-        return Array<Any?>(rowCount) {get(it, col)} as Array<T>
+    fun getCol(col: Int): List<T> {
+        return List(rowCount) { get(it, col) }
     }
 
-    fun setRow(row: Int, value: Array<T>) {
+    fun setRow(row: Int, value: List<T>) {
         for(i in 0..colCount) set(row, i, value[i])
     }
 
-    fun setCol(col: Int, value: Array<T>) {
+    fun setCol(col: Int, value: List<T>) {
         for(i in 0..rowCount) set(i, col, value[i])
     }
 
@@ -74,16 +77,16 @@ class Matrix<T> private constructor(
      */
     fun getOrNull(row: Int, col: Int) = secretArray.getOrNull(getIndex(row, col))
 
-    fun rows(): Iterator<Array<T>> {
-        return object : Iterator<Array<T>> {
+    fun rows(): Iterator<List<T>> {
+        return object : Iterator<List<T>> {
             var pos = 0
             override fun hasNext() = pos < rowCount
             override fun next() = getRow(pos++)
         }
     }
 
-    fun cols(): Iterator<Array<T>> {
-        return object : Iterator<Array<T>> {
+    fun cols(): Iterator<List<T>> {
+        return object : Iterator<List<T>> {
             var pos = 0
             override fun hasNext() = pos < colCount
             override fun next() = getCol(pos++)
@@ -167,7 +170,7 @@ class Matrix<T> private constructor(
 
     override fun iterator(): Iterator<T> = secretArray.iterator()
 
-    override fun clone(): Matrix<T> {
+    public override fun clone(): Matrix<T> {
         return Matrix(rowCount, colCount, secretArray = secretArray.clone())
     }
 

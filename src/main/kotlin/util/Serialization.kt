@@ -15,7 +15,7 @@ fun serializeGameState(gameState: GameState, playerName: String): String {
             )
         },
         SerializedBoard(
-            gameState.board.board.map { r ->
+            gameState.board.matrix.rows().asSequence().toList().map { r ->
                 r.map { s ->
                     SerializedSquare(
                         s.multiplier,

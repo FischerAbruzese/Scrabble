@@ -6,11 +6,12 @@ import exceptions.InvalidWordException
 import models.tiles.Piece
 import models.turn.Direction
 import models.turn.Move
+import util.Matrix
 import util.isValidScrabbleWord
 import util.perpendicular
 import java.util.*
 
-class Board(val board: Array<Array<Square>>): Iterable<Square> {
+class Board(val matrix: Matrix<Square>): Iterable<Square> {
     companion object {
         private val EMPTY_SQUARE = Square(Multiplier.NONE)
 
@@ -72,16 +73,12 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
         }
     }
 
-    constructor() : this(Array(15) { row ->
-        Array(15) { col ->
-            Square(getMultiplier(row, col))
-        }
-    })
+    constructor() : this(Matrix(15, 15) { row, col -> Square(getMultiplier(row, col)) })
 
-    fun classInv(): Boolean {
-        return board.isNotEmpty() && board.size == board[0].size
-                && board.size % 2 == 1 //Board must be odd
-    }
+//    fun classInv(): Boolean {
+//        return board.isNotEmpty() && board.size == board[0].size
+//                && board.size % 2 == 1 //Board must be odd
+//    }
 
     fun center(): Coord {
         return Coord(size() / 2, size() / 2)
@@ -90,24 +87,21 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
     /**
      * Gets the square at the given coordinate
      */
-    operator fun get(coord: Coord) = board[coord.y][coord.x]
-
-    fun rows() = board
+    operator fun get(coord: Coord) = matrix[coord.y, coord.x]
 
     /**
      * Gets the square at the given coordinate. Returns null if the coordinate is out of bounds
      */
     fun getOrNull(coord: Coord): Square? {
-        try{
-            return get(coord)
-        }
-        catch (e: Exception){
-            return null
+        return try{
+            get(coord)
+        } catch (e: Exception){
+            null
         }
     }
 
     operator fun set(coord: Coord, square: Square) {
-        board[coord.y][coord.x] = square
+        matrix[coord.y, coord.x] = square
     }
 
     fun isValidCoordinate(coord: Coord): Boolean {
@@ -117,7 +111,7 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
     /**
      * Width and height of the board
      */
-    fun size() = board.size
+    fun size() = matrix.rowCount
 
     fun readWord(
         startingCoord: Coord,
@@ -185,7 +179,7 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
      */
     @Throws(IllegalMoveException::class)
     fun findMove(move: Move): Pair<List<Coord>, Int> {
-        val boardClone = Board(board.map { it.clone() }.toTypedArray())
+        val boardClone = Board(matrix.clone())
         boardClone.run {
             var move = move
             val placedSquares = LinkedList<Coord>()
@@ -313,6 +307,6 @@ class Board(val board: Array<Array<Square>>): Iterable<Square> {
     }
 
     override fun iterator(): Iterator<Square> {
-        return board.flatten().iterator()
+        return matrix.flatten().iterator()
     }
 }

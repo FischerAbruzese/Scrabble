@@ -75,7 +75,10 @@ class Matrix<T> private constructor(
     /**
      * Returns an element at the given index or null if the index is out of bounds of this array.
      */
-    fun getOrNull(row: Int, col: Int) = secretArray.getOrNull(getIndex(row, col))
+    fun getOrNull(row: Int, col: Int): T? {
+        if(col >= colCount) return null
+        return secretArray.getOrNull(getIndex(row, col))
+    }
 
     fun rows(): Iterator<List<T>> {
         return object : Iterator<List<T>> {

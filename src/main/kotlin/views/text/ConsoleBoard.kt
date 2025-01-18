@@ -3,6 +3,7 @@ package views.text
 import models.GameState
 import models.Player
 import models.board.Multiplier
+import models.board.Square
 import util.appendLn
 import views.BoardController
 
@@ -68,7 +69,8 @@ class ConsoleBoard(private val playerList: List<Player>) : BoardController {
         screen.appendLn(centerString("*" + "---".repeat(gameState.board.size()) + "*", screenLength))
 
         //Board
-        for ((index, row) in gameState.board.board.withIndex()) {
+
+        for ((index, row) in gameState.board.matrix.rows().withIndex()) {
             screen.appendLn(
                 centerString(
                     "" +

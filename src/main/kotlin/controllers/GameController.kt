@@ -10,18 +10,15 @@ import models.turn.Turn
 import util.parsePieceFile
 import views.BoardController
 import java.io.FileInputStream
+import kotlin.random.Random
 
 //import views.WebOut
 
-class GameController {
+class GameController(private val random: Random = Random) {
     private lateinit var game: GameState
 
-    constructor(gameState: GameState) {
+    constructor(gameState: GameState): this() {
         this.game = gameState
-    }
-
-    //this is where you change the default game type
-    constructor() {
     }
 
     fun startGame(boardController: BoardController) {
@@ -29,7 +26,7 @@ class GameController {
         val bag = Bag(parsePieceFile(
             this::class.java.classLoader.getResourceAsStream("characters.csv")
                 ?: FileInputStream("src/main/resources/characters.csv")
-        ))
+        ), random)
 
         val players = boardController.getPlayers()
         for (player in players) {
@@ -41,6 +38,19 @@ class GameController {
         while (!game.gameOver()) {
             boardController.push(game)
             nextMove()
+        }
+
+        //game over stuff
+        boardController.push(game)
+
+        for (player in players) {
+            player.score -= player.hand.pieces.sumOf { it.value }
+        }
+
+        val winner = players.maxBy { it.score }
+
+        for(player in players) {
+            player.playerController.pushMessage("${winner.name} won with a score of ${winner.score}!", player.name)
         }
 
         runBlocking { boardController.closeAllConnections() }

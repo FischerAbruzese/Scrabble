@@ -21,6 +21,8 @@ fun startTextGame() {
     val humanController = ConsolePlayerController.INSTANCE
     val human = Player("AImari", aiController)
     val ai = Player("AIsky", aiController)
+    val seed = Random(69).nextInt(1000000)
+    println("Seed: $seed")
     GameController(Random(69)).startGame(
         ConsoleBoard(
             listOf(

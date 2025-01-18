@@ -246,19 +246,13 @@ class Board(val matrix: Matrix<Square>): Iterable<Square> {
 
                 //update score
                 val sq = get(currentLocation)
-                placedWordScore += when (sq.multiplier) {
-                    Multiplier.NONE -> sq.piece!!.value
-                    Multiplier.DOUBLE_LETTER -> sq.piece!!.value * 2
-                    Multiplier.TRIPLE_LETTER -> sq.piece!!.value * 3
-                    Multiplier.DOUBLE_WORD -> {
-                        placedWordMultiplier *= 2
-                        sq.piece!!.value
-                    }
-
-                    Multiplier.TRIPLE_WORD -> {
-                        placedWordMultiplier *= 3
-                        sq.piece!!.value
-                    }
+                placedWordScore += sq.piece!!.value
+                when (sq.multiplier) {
+                    Multiplier.NONE -> {}
+                    Multiplier.DOUBLE_LETTER -> placedWordScore += sq.piece.value
+                    Multiplier.TRIPLE_LETTER -> placedWordScore += sq.piece.value * 2
+                    Multiplier.DOUBLE_WORD -> placedWordMultiplier *= 2
+                    Multiplier.TRIPLE_WORD -> placedWordMultiplier *= 3
                 }
 
                 currentLocation = when (move.direction) {
@@ -285,13 +279,12 @@ class Board(val matrix: Matrix<Square>): Iterable<Square> {
                     findWordAt(coord, move.direction.perpendicular())
 
                 //score word
-                var wordScore = 0
                 var wordMultiplier = 1
 
-                wordScore += word.sumOf { it.value }
+                var wordScore = word.sumOf { it.value }
                 when (get(coord).multiplier) {
-                    Multiplier.DOUBLE_LETTER -> get(coord).piece!!.value
-                    Multiplier.TRIPLE_LETTER -> get(coord).piece!!.value * 2
+                    Multiplier.DOUBLE_LETTER -> wordScore += get(coord).piece!!.value
+                    Multiplier.TRIPLE_LETTER -> wordScore += get(coord).piece!!.value * 2
                     Multiplier.DOUBLE_WORD -> wordMultiplier *= 2
                     Multiplier.TRIPLE_WORD -> wordMultiplier *= 3
                     Multiplier.NONE -> {}
@@ -302,6 +295,7 @@ class Board(val matrix: Matrix<Square>): Iterable<Square> {
                     throw IllegalMoveException("Invalid word: ${word.joinToString("") { it.letter.toString() }}")
                 }
             }
+            if(move.pieces.size >= 7) totalScore += 50 //BINGO
             return placedSquares to totalScore
         }
     }

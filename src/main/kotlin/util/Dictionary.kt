@@ -10,7 +10,7 @@ class Dictionary {
         val words: HashSet<String> = HashSet<String>()
 
         init {
-            val inputStream: InputStream = object {}.javaClass.getResourceAsStream(FILENAME)
+            val inputStream: InputStream = object {}.javaClass.getResourceAsStream("/$FILENAME")
                 ?: FileInputStream("src/main/resources/dictionary.csv")
 
             val dictionary = Scanner(inputStream)

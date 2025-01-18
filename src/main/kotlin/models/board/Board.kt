@@ -225,8 +225,8 @@ class Board(val matrix: Matrix<Square>): Iterable<Square> {
                     usesBoardPiece = true
 
                     currentLocation = when (move.direction) {
-                        Direction.ACROSS -> Coord(currentLocation.x + 1, currentLocation.y)
-                        Direction.DOWN -> Coord(currentLocation.x, currentLocation.y + 1)
+                        Direction.ACROSS -> currentLocation.add(1, 0)
+                        Direction.DOWN -> currentLocation.add(0, 1)
                         Direction.NONE -> throw IllegalStateException("Something has gone terribly wrong")
                     }
                 }
@@ -307,6 +307,6 @@ class Board(val matrix: Matrix<Square>): Iterable<Square> {
     }
 
     override fun iterator(): Iterator<Square> {
-        return matrix.flatten().iterator()
+        return matrix.iterator()
     }
 }

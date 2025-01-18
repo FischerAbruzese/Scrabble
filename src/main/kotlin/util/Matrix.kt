@@ -169,6 +169,8 @@ class Matrix<T> private constructor(
 
     val size: Int get() = rowCount * colCount
 
+    fun map(transform: (T) -> T): Matrix<T> = Matrix(rowCount, colCount) { r, c -> transform(get(r, c)) }
+
     operator fun contains(element: T): Boolean = secretArray.contains(element)
 
     override fun iterator(): Iterator<T> = secretArray.iterator()

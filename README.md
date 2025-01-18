@@ -1,7 +1,7 @@
 # Project Overview
 This project is a game of Scrabble coded from the ground up in Kotlin!
 
-In addition to the game, a custom algorithm for an AI plays the highest scoring move on every turn.
+In addition to the game, you can play against our custom algorithm for an AI that plays the highest scoring move on every turn.
 
 Be on the lookout for a website to play the game coming soon (ish)
 

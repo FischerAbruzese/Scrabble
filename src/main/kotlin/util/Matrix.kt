@@ -1,5 +1,8 @@
 package util
 
+/**
+ * A representation of a 0-indexed rectangular 2D array
+ */
 class Matrix<T> private constructor(
     val rowCount: Int,
     val colCount: Int,
@@ -16,7 +19,17 @@ class Matrix<T> private constructor(
     private fun getRowCol(index: Int) = index / colCount to index % colCount
     private fun getIndex(row: Int, col: Int) = row*colCount + col
 
-
+    /**
+     * Checks if the given [row] and [col] are in bounds of this array.
+     *
+     * @throws IndexOutOfBoundsException If the [row] or [col] is out of bounds of this array.
+     */
+    private fun checkBounds(row: Int, col: Int) {
+        if(row < 0) throw IndexOutOfBoundsException("row index $row is out of bounds for length $rowCount")
+        if(col < 0) throw IndexOutOfBoundsException("col index $col is out of bounds for length $colCount")
+        if(col >= colCount) throw IndexOutOfBoundsException("col index $col is out of bounds for length $colCount")
+        if(row >= rowCount) throw IndexOutOfBoundsException("row index $row is out of bounds for length $rowCount")
+    }
     /**
      * Returns the array element at the given [row] and [col].
      *
@@ -28,7 +41,7 @@ class Matrix<T> private constructor(
      * @throws IndexOutOfBoundsException If the [row] or [col] is out of bounds of this array.
      */
     operator fun get(row: Int, col: Int): T {
-        if(col >= colCount) throw IndexOutOfBoundsException("col index $col$ is out of bounds for length $colCount")
+        checkBounds(row, col)
         return secretArray[getIndex(row, col)]
     }
 
@@ -42,7 +55,10 @@ class Matrix<T> private constructor(
      *
      * @throws IndexOutOfBoundsException If the [row] or [col] is out of bounds of this array.
      */
-    operator fun set(row: Int, col: Int, value: T) { secretArray[getIndex(row, col)] = value }
+    operator fun set(row: Int, col: Int, value: T) {
+        checkBounds(row, col)
+        secretArray[getIndex(row, col)] = value
+    }
 
     /**
      * Returns the array of elements representing the given [row].
@@ -65,11 +81,15 @@ class Matrix<T> private constructor(
     }
 
     fun setRow(row: Int, value: List<T>) {
-        for(i in 0..colCount) set(row, i, value[i])
+        if (row < 0 || row >= rowCount) throw IndexOutOfBoundsException("Row index $row is out of bounds for length $rowCount")
+        if (value.size != colCount) throw IllegalArgumentException("Values list size (${value.size}) must match column count ($colCount)")
+        for(i in 0 until colCount) set(row, i, value[i])
     }
 
     fun setCol(col: Int, value: List<T>) {
-        for(i in 0..rowCount) set(i, col, value[i])
+        if (col < 0 || col >= colCount) throw IndexOutOfBoundsException("Column index $col is out of bounds for length $colCount")
+        if (value.size != rowCount) throw IllegalArgumentException("Values list size (${value.size}) must match row count ($rowCount)")
+        for(i in 0 until rowCount) set(i, col, value[i])
     }
 
     /**
@@ -110,7 +130,7 @@ class Matrix<T> private constructor(
     }
 
     fun <O, R, F> multiply(matrix: Matrix<O>, elementFunc: (T, O) -> R, collapseFunc: (List<R>) -> F): Matrix<F> {
-        if(rowCount != matrix.colCount || colCount != matrix.rowCount) throw IllegalArgumentException("Matrices must have inverted sizes")
+        if(colCount != matrix.rowCount) throw IllegalArgumentException("Matrices must have compatible sizes for multiplication")
         return Matrix(rowCount, matrix.colCount) { r, c ->
             collapseFunc(
                 getRow(r).zip(matrix.getCol(c)) { e1, e2 ->
@@ -123,11 +143,11 @@ class Matrix<T> private constructor(
     fun flatten(): Array<T> = secretArray.clone()
 
     fun sliceRows(rows: IntRange): Matrix<T> {
-        return Matrix(rows.count(), colCount) {r, c -> get(r,c)}
+        return Matrix(rows.count(), colCount) {r, c -> get(rows.first + r,c)}
     }
 
     fun sliceCols(cols: IntRange): Matrix<T> {
-        return Matrix(rowCount, cols.count()) {r, c -> get(r,c)}
+        return Matrix(rowCount, cols.count()) {r, c -> get(r,cols.first + c)}
     }
 
     /**
@@ -168,8 +188,6 @@ class Matrix<T> private constructor(
     }
 
     val size: Int get() = rowCount * colCount
-
-    fun map(transform: (T) -> T): Matrix<T> = Matrix(rowCount, colCount) { r, c -> transform(get(r, c)) }
 
     operator fun contains(element: T): Boolean = secretArray.contains(element)
 

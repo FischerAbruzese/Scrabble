@@ -159,7 +159,6 @@ class Ai(private val moveDelayMilli: Long = 0) : PlayerController {
             }
         }
         searchPermutations(startingWindow)
-
         return bestMove
     }
 

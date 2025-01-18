@@ -40,7 +40,7 @@ class GameController(private val random: Random = Random) {
             nextMove()
         }
 
-        //gameover stuff
+        //game over stuff
         boardController.push(game)
 
         for (player in players) {

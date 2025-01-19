@@ -23,6 +23,9 @@ server.properties
 *.iml
 *.ipr
 
+### Neovim ###
+.tasks
+
 ### Eclipse ###
 .apt_generated
 .classpath
